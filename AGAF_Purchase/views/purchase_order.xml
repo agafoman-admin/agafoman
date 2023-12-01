@@ -1,0 +1,48 @@
+<odoo>
+    <data>
+
+
+        <record id="view_purchase_form_inherited" model="ir.ui.view">
+            <field name="name">view.purchase.inherited</field>
+            <field name="model">purchase.order</field>
+            <field name="inherit_id" ref="purchase.purchase_order_form" />
+            <field name="arch" type="xml">
+                <xpath expr="//form/sheet/group/group/field[@name='partner_ref']" position="after">
+                    <field name='comparison_refs'
+                        options="{'no_create': True, 'no_create_edit':True}" />
+                </xpath>
+
+
+            </field>
+        </record>
+
+        <record id="vendor_comparison_number_form_view" model="ir.ui.view">
+            <field name="name">vendor.comparison</field>
+            <field name="model">vendor.comparison.number</field>
+            <field name="arch" type="xml">
+                <form string="form">
+                    <sheet>
+                        <group>
+                            <field name='name' />
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="vendor_comparison_name_action">
+            <field name="name">Vendor Comparison Number</field>
+            <field name="res_model">vendor.comparison.number</field>
+            <field name="view_mode">tree,form</field>
+            <!-- <field name="target">new</field> -->
+        </record>
+
+        <menuitem name="Vendor Comparison Number"
+            id="vendor_comparison_number"
+            parent="purchase.menu_purchase_config"
+            action="vendor_comparison_name_action" />
+
+    </data>
+
+
+</odoo>

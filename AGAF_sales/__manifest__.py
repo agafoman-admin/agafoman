@@ -1,0 +1,28 @@
+{
+    'name': 'AGAF Sales',
+    'version': '16.0.0',
+    'author': 'Pragmatic TechSoft Pvt Ltd.',
+    'website': "www.pragtech.co.in",
+    'category': 'Construction',
+    'summary': 'AGAF Sales',
+    'depends': ['base', 'sale_management', 'mrp', 'crm', 'sale_crm','project'],
+    'data': [
+        'security/ir.model.access.csv',
+        'data/ir_sequence.xml',
+        'data/groups.xml',
+        'report/quotation.xml',
+        'report/quotation_template.xml',
+        'views/agaf_mrp_boq.xml',
+        'views/agaf_product.xml',
+        'views/agaf_pricelist.xml',
+        'views/agaf_crm_lead.xml',
+        'views/agaf_sale_order.xml',
+        'views/agaf_project.xml',
+        'report/send_by_email.xml'
+    ],
+    'license': 'OPL-1',
+    'price': '0.00',
+    'currency': 'USD',
+    'installable': True,
+    'auto_install': False,
+}

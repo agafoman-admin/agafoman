@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_pricelist_materials,pricelist_materials,model_pricelist_materials,,1,1,1,1
+access_pricelist_labours,pricelist_labours,model_pricelist_labours,,1,1,1,1
+access_pricelist_equipments,pricelist_equipments,model_pricelist_equipments,,1,1,1,1
+access_work_type,work_type,model_work_type,,1,1,1,1
+access_boq_details,boq_details,model_boq_details,,1,1,1,1
+access_estimation_works,estimation_works,model_estimation_works,,1,1,1,1
+access_estimated_boq_details,estimated_boq_details,model_estimated_boq_details,,1,1,1,1
+access_estimated_boq_material_details,estimated_boq_material_details,model_estimated_boq_material_details,,1,1,1,1
+access_estimated_boq_labour_details,estimated_boq_labour_details,model_estimated_boq_labour_details,,1,1,1,1
+access_estimated_boq_equipment_details,estimated_boq_equipment_details,model_estimated_boq_equipment_details,,1,1,1,1
+access_so_boq_material_details,so_boq_material_details,model_so_boq_material_details,,1,1,1,1
+access_so_boq_labour_details,so_boq_labour_details,model_so_boq_labour_details,,1,1,1,1
+access_so_boq_equipment_details,so_boq_equipment_details,model_so_boq_equipment_details,,1,1,1,1
+access_quotation_report_out_user,quotation.report.out,model_quotation_report_out,,1,1,1,1

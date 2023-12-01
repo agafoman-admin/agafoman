@@ -1,0 +1,81 @@
+<odoo>
+    <data>
+        <record id="product_pricelist_view_inherit" model="ir.ui.view">
+        <field name="name">product.pricelist</field>
+        <field name="model">product.pricelist</field>
+        <field name="inherit_id" ref="product.product_pricelist_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//group[@name='pricelist_settings']" position="after">
+                <group>
+                    <button name="add_components" string="Add components" class="oe_highlight" type="object" />
+                    <button name="update_value" string="Update Value" class="oe_highlight" type="object" />
+                </group>
+            </xpath>
+            <xpath expr="//page[@name='pricelist_rules']" position="replace">
+                <page name="pricelist_rules" string="BOQ Details">
+                            <field name="item_ids" nolabel="1" context="{'default_base':'list_price'}">
+                                <tree groups="!product.group_sale_pricelist" string="Pricelist Rules" editable="bottom">
+                                    <field name="product_tmpl_id" string="Products" required="1"/>
+                                    <field name="product_id" string="Variants" groups="product.group_product_variant" domain="[('product_tmpl_id', '=', product_tmpl_id)]" options="{'no_create':1}"/>
+                                    <field name="min_quantity"/>
+                                    <field name="fixed_price" string="Price"/>
+                                    <field name="currency_id" invisible="1"/>
+                                    <field name="pricelist_id" invisible="1"/>
+                                    <!-- Pricelist ID is here only for related fields to be correctly computed -->
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="base" invisible="1"/>
+                                    <field name="applied_on" invisible="1"/>
+                                    <field name="company_id" invisible="1"/>
+                                </tree>
+                                <!-- When in advanced pricelist mode : pricelist rules
+                                    Should open in a form view and not be editable inline anymore.
+                                -->
+                                <tree groups="product.group_sale_pricelist" string="Pricelist Rules">
+                                    <field name="product_tmpl_id" invisible="1"/>
+                                    <field name="name" string="Applicable On"/>
+                                    <field name="min_quantity"/>
+                                    <field name="price" string="Price"/>
+                                    <field name="date_start"/>
+                                    <field name="date_end"/>
+                                    <field name="base" invisible="1"/>
+                                    <field name="price_discount" invisible="1"/>
+                                    <field name="applied_on" invisible="1"/>
+                                    <field name="compute_price" invisible="1"/>
+                                </tree>
+                            </field>
+                        </page>
+            </xpath>
+            <xpath expr="//page[@name='pricelist_rules']" position="after">
+                <page name="pricelist_materials" string="Materials">
+                    <field name="material_line_ids" nolabel="1">
+                        <tree string="Materials" editable="bottom" create="false" delete="false">
+                            <field name="product_tmpl_id"/>
+                            <field name="product_qty"/>
+                            <field name="cost_price"/>
+                        </tree>
+                    </field>
+                </page>
+                <page name="pricelist_labours" string="Labours">
+                    <field name="labour_line_ids" nolabel="1">
+                        <tree string="Labours" editable="bottom" create="false" delete="false">
+                            <field name="product_tmpl_id"/>
+                            <field name="product_qty"/>
+                            <field name="cost_price"/>
+                        </tree>
+                    </field>
+                </page>
+                <page name="pricelist_equipments" string="Equipments">
+                    <field name="equipment_line_ids" nolabel="1">
+                        <tree string="Equipments" editable="bottom" create="false" delete="false">
+                            <field name="product_tmpl_id"/>
+                            <field name="product_qty"/>
+                            <field name="cost_price"/>
+                        </tree>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,47 @@
+<odoo>
+    <data>
+        <record id="mrp_bom_form_view_inherited1" model="ir.ui.view">
+            <field name="name">mrp.bom.form.inherited</field>
+            <field name="model">mrp.bom</field>
+            <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='code']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='type']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
+                <div class="o_row" position="after">
+                    <field name="boq_price" readonly="1" force_save="1"/>
+                </div>
+                <xpath expr="//field[@name='manual_consumption_readonly']" position="after">
+                    <field name="cost_price"/>
+                    <field name="sales_price" invisible="1"/>
+                    <field name="total_price" sum="Total" readonly="1" force_save="1"/>
+                </xpath>
+            </field>
+        </record>
+        <record id="mrp_boq_form_action" model="ir.actions.act_window">
+            <field name="name">Bills of Quantity</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">mrp.bom</field>
+            <field name="domain">[]</field> <!-- force empty -->
+            <field name="view_mode">tree,kanban,form</field>
+            <field name="search_view_id" ref="mrp.view_mrp_bom_filter"/>
+            <field name="context">{'default_company_id': allowed_company_ids[0]}</field>
+            <field name="help" type="html">
+              <p class="o_view_nocontent_smiling_face">
+                No bill of materials found. Let's create one!
+              </p><p>
+                Bills of materials allow you to define the list of required raw
+                materials used to make a finished product; through a manufacturing
+                order or a pack of products.
+              </p>
+            </field>
+        </record>
+        <menuitem id="menu_mrp_boq_form_action"
+            action="mrp_boq_form_action"
+            parent="sale.sale_order_menu"
+            sequence="13"/>
+    </data>
+</odoo>

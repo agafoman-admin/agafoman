@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_vendor_comparison,access_vendor_comparison,model_vendor_comparison,base.group_user,1,1,1,1
+access_vendor_comparison_number,access_vendor_comparison_number,model_vendor_comparison_number,base.group_user,1,1,1,1
+

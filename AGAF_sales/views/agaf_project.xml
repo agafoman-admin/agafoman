@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="view_project_form_inherited1" model="ir.ui.view">
+            <field name="name">view.project.form.inherited</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project"/>
+            <field name="arch" type="xml">
+                <field name="tag_ids" position="after">
+                    <field name="order_id" readonly="1"/>
+                    <field name="project_rate" readonly="1"/>
+                </field>
+            </field>
+        </record>
+    </data>
+</odoo>

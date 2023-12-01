@@ -1,0 +1,35 @@
+<odoo>
+    <data>
+        <record id="rule_group_mrs_manager" model="ir.rule">
+            <field name="name">MRS Manager</field>
+            <field name="model_id" ref="AGAF_Project.model_material_requisition_slip"/>
+            <field name="domain_force">[('state', 'in', ['draft','waiting_for_approval','approved','rejected']),('project_manager_id','=',user.id)]</field>
+            <field name="groups" eval="[(4, ref('AGAF_Project.group_estimation_manager_mrs'))]"/>
+            <field name="perm_read" eval="True" />
+            <field name="perm_write" eval="True" />
+            <field name="perm_create" eval="True" />
+            <field name="perm_unlink" eval="True" />
+        </record>
+        <record id="rule_group_store_user" model="ir.rule">
+            <field name="name">Store Incharge</field>
+            <field name="model_id" ref="AGAF_Project.model_material_issue_voucher"/>
+            <field name="domain_force">[('state', 'in', ['draft','waiting_for_approval','approved','rejected'])]</field>
+            <field name="groups" eval="[(4, ref('AGAF_Project.group_store_user'))]"/>
+            <field name="perm_read" eval="True" />
+            <field name="perm_write" eval="True" />
+            <field name="perm_create" eval="True" />
+            <field name="perm_unlink" eval="True" />
+        </record>
+
+        <record id="rule_group_store_manager" model="ir.rule">
+            <field name="name">Store Manager</field>
+            <field name="model_id" ref="AGAF_Project.model_material_issue_voucher"/>
+            <field name="domain_force">[('state', 'in', ['waiting_for_approval','approved','rejected'])]</field>
+            <field name="groups" eval="[(4, ref('AGAF_Project.group_store_manager'))]"/>
+            <field name="perm_read" eval="True" />
+            <field name="perm_write" eval="True" />
+            <field name="perm_create" eval="True" />
+            <field name="perm_unlink" eval="True" />
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,151 @@
+<odoo>
+    <template id="external_layout_slip">
+        <t t-if="not o and doc">
+            <t t-set="o" t-value="doc"/>
+        </t>
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="o.company_id"></t>
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company"></t>
+        </t>
+        <div>
+            <t t-call="AGAF_Project.basic_layout_header_consolidated_picking"/>
+            <div t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout"
+                 t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id">
+                <t t-out="0"/>
+            </div>
+            <t t-call="AGAF_Project.basic_layout_footer_consolidated_picking"/>
+        </div>
+    </template>
+
+    <template id="basic_layout_header_consolidated_picking">
+        <div t-attf-class="header o_company_#{company.id}_layout">
+            <div class="o_boxed_header">
+                <div class="row mb8">
+                    <div class="col-3">
+                        <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 35px;"
+                             alt="Logo"/>
+                    </div>
+                </div>
+            </div>
+            <div style="border-bottom: 1px solid #6C1621;"/>
+        </div>
+    </template>
+
+    <template id="basic_layout_footer_consolidated_picking">
+        <t t-call="web.html_container">
+            <t t-if="not o" t-set="o" t-value="doc"/>
+            <div t-attf-class="footer o_boxed_footer">
+                <table class="table table-borderless mb64"
+                       style="width:100%;page-break-inside: avoid;">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Printed By:
+                                <span t-field="o.env.user.name"/>
+                                -
+                                <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%d/%m/%Y %H:%M')"/>
+                            </th>
+                            <th style="text-align:right;">
+                                <span t-field="o.name"/>
+                            </th>
+                        </tr>
+                        <tr>
+                            <th colspan="2" style="text-align:center">
+                                Page:
+                                <span class="page"/>
+                                of
+                                <span class="topage"/>
+                            </th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </t>
+    </template>
+
+    <template id="consolidated_picking_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="AGAF_Project.external_layout_slip">
+                    <b>
+                        <h3 style="text-align: center;">
+                            <th>Consolidated Picking List</th>
+                        </h3>
+                    </b>
+                    <br/>
+                    <br/>
+                    <div class="row">
+                        <div class="col-4" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    No</b>:
+                                    <t t-esc="o.name"/>
+                                </li>
+                                <br/>
+                                </ul>
+                        </div>
+                        <div class="col-4">
+                            <ul style="list-style: none;display: table;">
+
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Warehouse:</b>:
+                                    <t t-esc="o.warehouse_id.name"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                        <div class="col-4">
+                            <ul style="list-style: none;display: table;">
+
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Date:</b>:
+                                    <t t-esc="o.date"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <table class="table table-bordered mb64"
+                           style="width:100%;page-break-inside: avoid;border-color:black">
+                        <thead>
+                            <tr style="background-color:green;">
+                                <th style="width:15%;">S.No.</th>
+                                <th style="width:25%;">Particulars</th>
+                                <th style="width:20%;">Unit</th>
+                                <th style="width:20%;">Quantity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="i" t-value="1" />
+                            <t t-foreach="o.material_line_ids" t-as="p">
+
+                                <tr style="text-align: center" t-if="p.picking_quntity > 0">
+                                    <td>
+                                        <span t-esc="i"/>
+                                        <t t-set="i" t-value="i+1"/>
+<!--                                        <span t-esc="p_index+1"/>-->
+                                    </td>
+                                    <td>
+                                        <span t-esc="p.product_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="p.uom_id.name"/>
+                                    </td>
+                                    <td>
+                                        <span t-esc="'{0:,.2f}'.format(p.picking_quntity)"/>
+                                    </td>
+
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                    <br/>
+                    <br/>
+                </t>
+            </t>
+        </t>
+    </template>
+</odoo>

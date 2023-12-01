@@ -1,0 +1,300 @@
+<odoo>
+    <data>
+        <record id="crm_case_form_view_oppor_inherit" model="ir.ui.view">
+            <field name="name">crm.lead.oppor.inherited.crm</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_lead_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='lost_reason_id']" position="after">
+                    <field name="enquiry_type" required="1"/>
+                </xpath>
+                <xpath expr="//button[@name='action_set_won_rainbowman']" position="before">
+                    <button name="get_estimation_work" string="Create Estimation" type="object" class="oe_highlight"
+                            attrs="{'invisible': ['|',('enquiry_type', '!=', 'bid'),('estimate_id', '!=', False)]}"/>
+                </xpath>
+                <xpath expr="//notebook" position="inside">
+                    <page name="boq_details" string="BOQ Details"
+                          attrs="{'invisible': [('enquiry_type', '!=', 'bid')]}">
+                        <field name="boq_detail_ids">
+                            <tree editable="bottom">
+                                <field name="product_tmpl_id" required="1"/>
+                                <field name="description"/>
+                                <field name="product_uom_qty" required="1"/>
+                                <field name="uom_id"/>
+                                <field name="price_unit"/>
+                                <field name="work_type_id" required="1"/>
+                                <field name="total" sum="Total" readonly="1" force_save="1"/>
+                            </tree>
+                        </field>
+                    </page>
+                </xpath>
+                <xpath expr="//group[@class='mt48']" position="inside">
+                    <field name="estimate_id" readonly="1"/>
+                </xpath>
+            </field>
+        </record>
+
+        <record id="quick_create_opportunity_form" model="ir.ui.view">
+            <field name="name">crm.lead.form.quick_create</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.quick_create_opportunity_form"/>
+            <field name="arch" type="xml">
+                <field name="name" position="after">
+                    <field name="enquiry_type" required="1"/>
+                </field>
+            </field>
+        </record>
+
+        <record id="crm_case_kanban_view_leads_inherit" model="ir.ui.view">
+            <field name="name">crm.lead.kanban</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="crm.crm_case_kanban_view_leads"/>
+            <field name="arch" type="xml">
+                <field name="tag_ids" position="before">
+                    <div>
+                        <field name="enquiry_type"/>
+                    </div>
+                </field>
+            </field>
+        </record>
+
+        <record id="crm_case_form_view_oppor_form" model="ir.ui.view">
+            <field name="name">crm.lead.form.quick_create</field>
+            <field name="model">crm.lead</field>
+            <field name="inherit_id" ref="sale_crm.crm_case_form_view_oppor"/>
+            <field name="arch" type="xml">
+                <button name="action_sale_quotations_new" position="replace">
+                    <button string="New Quotation" name="action_sale_quotations_new" type="object" class="oe_highlight" data-hotkey="q" title="Create new quotation" attrs="{'invisible': ['|', '|',('type', '=', 'lead'), '&amp;', ('probability', '=', 0), ('active', '=', False), ('enquiry_type', '=', 'bid')]}"/>
+                </button>
+            </field>
+        </record>
+
+
+
+        <record id="type_of_work_form" model="ir.ui.view">
+            <field name="name">work.type</field>
+            <field name="model">work.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="company_id"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="type_of_work_tree" model="ir.ui.view">
+            <field name="name">work.type</field>
+            <field name="model">work.type</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="company_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="work_type_action" model="ir.actions.act_window">
+            <field name="name">Work Type</field>
+            <field name="res_model">work.type</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem
+                action="AGAF_sales.work_type_action"
+                id="menu_work_type"
+                name="Work Type"
+                parent="crm.crm_menu_config" sequence="2"/>
+
+        <record id="estimation_works_form" model="ir.ui.view">
+            <field name="name">estimation_works</field>
+            <field name="model">estimation.works</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+                        <button name="action_waiting_for_approval" string="Send For Approval" type="object" states="draft" class="oe_highlight" groups="AGAF_sales.group_estimation_user_budget"/>
+                        <button name="action_approved" string="Approve" type="object" states="waiting_for_approval" class="oe_highlight" groups="AGAF_sales.group_estimation_manager_budget"/>
+                        <button name="action_rejected" string="Reject" type="object" states="waiting_for_approval" class="oe_highlight" groups="AGAF_sales.group_estimation_manager_budget"/>
+                        <button name="action_internal_revised" string="Internal Revision" type="object" states="reject" class="oe_highlight" groups="AGAF_sales.group_estimation_user_budget"/>
+                        <button name="action_revise" string="Revise" type="object"  class="oe_highlight" groups="AGAF_sales.group_estimation_user_budget" attrs="{'invisible': ['|',('is_revise', '=', True),('state','!=','cancel')]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,waiting_for_approval,quotation_created,reject,cancel" />
+                    </header>
+                    <sheet>
+
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name" readonly="1"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name="partner_id" readonly="1"/>
+                                <field name="email_from" readonly="1"/>
+                                <field name="phone" readonly="1"/>
+                                <field name="company_id" readonly="1"/>
+                                <field name="is_revise" invisible="1"/>
+
+                            </group>
+                            <group>
+                                <field name="enquiry_type" readonly="1"/>
+                                <field name="user_id" readonly="1"/>
+                                <field name="date_deadline" readonly="1"/>
+                                <field name="opportunity_id" readonly="1"/>
+                                <field name="margin_pr" widget="percentage" attrs="{'readonly': [('state', 'not in', ['draft'])]}"/>
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <button name="add_components" string="Add components" class="oe_highlight"
+                                        type="object"/>
+                            </group>
+                            <group>
+                                <button name="apply_margin" string="Apply Margin" class="oe_highlight"
+                                        type="object"/>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="boq_details" string="BOQ Details">
+                                <field name="boq_detail_ids" attrs="{'readonly': [('state', 'not in', ['draft'])]}">
+                                    <tree editable="bottom" create="0" delete="0">
+                                        <field name="product_tmpl_id" required="1" readonly="1"/>
+                                        <field name="description" readonly="1"/>
+                                        <field name="product_uom_qty" required="1" readonly="0"/>
+                                        <field name="uom_id" readonly="1"/>
+                                        <field name="fixed_price_unit" readonly="1" invisible="1"/>
+                                        <field name="price_unit" readonly="0" force_save="1"/>
+                                        <field name="margin_pr" readonly="1" widget="percentage" />
+                                        <field name="work_type_id" required="1" readonly="1"/>
+                                        <field name="tax_id" widget="many2many_tags" force_save="1"/>
+                                        <field name="company_id" invisible="1"/>
+                                        <field name="price_subtotal" sum="Total" readonly="1" force_save="1"/>
+                                        <field name="price_tax" invisible="1"/>
+                                        <field name="price_total" invisible="1"/>
+                                    </tree>
+                                </field>
+                                <group name="note_group" col="6" class="mt-2 mt-md-0">
+                                    <group>
+                                        <field name="material_total" readonly="1"/>
+                                        <field name="labour_total" readonly="1"/>
+                                        <field name="equipment_total" readonly="1"/>
+                                    </group>
+                                    <group class="oe_subtotal_footer oe_right" colspan="2" name="sale_total">
+                                        <field name="tax_totals" widget="account-tax-totals-field" nolabel="1" colspan="2" readonly="1"/>
+                                    </group>
+                                    <div class="clearfix"/>
+                                </group>
+
+                            </page>
+                            <page name="materials" string="Materials">
+                                <field name="material_line_ids" style="pointer-events:none;">
+                                    <tree edit="false" create="false" delete="false">
+                                        <field name="product_tmpl_id" required="1" readonly="1"/>
+                                        <field name="description" readonly="1"/>
+                                        <field name="product_uom_qty" required="1" readonly="1"/>
+                                        <field name="uom_id" readonly="1"/>
+                                        <field name="price_unit" readonly="1"/>
+                                        <field name="fixed_price_unit" readonly="1" invisible="1"/>
+                                        <field name="margin_pr" readonly="1" widget="percentage"/>
+                                        <!--                                        <field name="work_type_id" required="1"/>-->
+                                        <field name="total" sum="Total" readonly="1" force_save="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="labours" string="Labours" >
+                                <field name="labour_line_ids" style="pointer-events:none;">
+                                    <tree edit="false" create="false" delete="false">
+                                        <field name="product_tmpl_id" required="1" readonly="1"/>
+                                        <field name="description" readonly="1"/>
+                                        <field name="product_uom_qty" required="1" readonly="1"/>
+                                        <field name="uom_id" readonly="1"/>
+                                        <field name="price_unit" readonly="1"/>
+                                        <field name="fixed_price_unit" readonly="1" invisible="1"/>
+                                        <field name="margin_pr" readonly="1" widget="percentage"/>
+                                        <!--                                        <field name="work_type_id" required="1"/>-->
+                                        <field name="total" sum="Total" readonly="1" force_save="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="equipments" string="Equipments">
+                                <field name="equipment_line_ids" style="pointer-events:none;">
+                                    <tree edit="false" create="false" delete="false">
+                                        <field name="product_tmpl_id" required="1" readonly="1"/>
+                                        <field name="description" readonly="1"/>
+                                        <field name="product_uom_qty" required="1" readonly="1"/>
+                                        <field name="uom_id" readonly="1"/>
+                                        <field name="price_unit" readonly="1"/>
+                                        <field name="fixed_price_unit" readonly="1" invisible="1"/>
+                                        <field name="margin_pr" readonly="1" widget="percentage"/>
+                                        <!--                                        <field name="work_type_id" required="1"/>-->
+                                        <field name="total" sum="Total" readonly="1" force_save="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="extra_info" string="Extra Information">
+                                <group>
+                                    <field name="quotation_id" readonly="1"/>
+                                </group>
+
+
+                            </page>
+                        </notebook>
+                    </sheet>
+                    <div class="oe_chatter">
+                        <field name="message_follower_ids"/>
+                        <field name="activity_ids"/>
+                        <field name="message_ids" options="{'post_refresh': 'recipients'}"/>
+                    </div>
+                </form>
+            </field>
+        </record>
+
+        <record id="estimation_works_tree" model="ir.ui.view">
+            <field name="name">estimation_works</field>
+            <field name="model">estimation.works</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="partner_id"/>
+                    <field name="email_from"/>
+                    <field name="phone"/>
+                    <field name="enquiry_type"/>
+                    <field name="user_id"/>
+                    <field name="date_deadline"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="estimation_work_action" model="ir.actions.act_window">
+            <field name="name">Estimation Works</field>
+            <field name="res_model">estimation.works</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem id="menu_estimation"
+            name="Estimation"
+            action="estimation_work_action"
+            parent="sale.sale_order_menu"
+            />
+
+<!--        <record id="view_popup_form" model="ir.ui.view">-->
+<!--            <field name="name">popup.wizard.form</field>-->
+<!--            <field name="model">popup.wizard.form</field>-->
+<!--            <field name="arch" type="xml">-->
+<!--                <form string="Popup Message">-->
+<!--                    <sheet>-->
+<!--&lt;!&ndash;                        <group>&ndash;&gt;-->
+<!--                            <field name="name" readonly="1" nolabel="1"/>-->
+<!--&lt;!&ndash;                        </group>&ndash;&gt;-->
+<!--                        <footer>-->
+<!--                            <button string="Close" class="btn btn-secondary" special="cancel" data-hotkey="z"/>-->
+<!--                        </footer>-->
+<!--                    </sheet>-->
+<!--                </form>-->
+<!--            </field>-->
+<!--        </record>-->
+
+    </data>
+</odoo>

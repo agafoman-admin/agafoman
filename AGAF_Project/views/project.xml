@@ -1,0 +1,458 @@
+<odoo>
+
+
+    <data>
+
+        <record id="projec_project_button_inherit" model="ir.ui.view">
+            <field name="name">project_project_views</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.edit_project" />
+            <field name="arch" type="xml">
+
+                <div name="button_box" position="inside">
+                    <button class="oe_stat_button" type="object" name="get_vehicles"
+                        icon="fa-file">
+                        <field string="Phases" name="vehicle_count" widget="statinfo" />
+                    </button>
+                </div>
+                <xpath expr="//header" position="inside">
+                    <button name="project_phase_create" string="Create Phase" class="oe_highlight"
+                        type="object" />
+                </xpath>
+
+                <field name="user_id" position="after">
+                    <field name="company_id" />
+                </field>
+                <page name="settings" position="after">
+                    <page string="Project Costing" name="Project Costing">
+                        <group>
+                            <field name="project_cost" readonly="1" force_save="1"/>
+                            <field name="planned_material_cost" readonly="1" force_save="1"/>
+                            <field name="actual_material_cost" readonly="1" force_save="1"/>
+                            <field name="utilization_cost" readonly="1" force_save="1"/>
+                        </group>
+                    </page>
+                </page>
+            </field>
+        </record>
+
+
+        <record id="project_phase_kanban_view" model="ir.ui.view">
+            <field name="name">project.phase.kanban</field>
+            <field name="model">project.phase</field>
+            <field name="arch" type="xml">
+                <kanban class="o_res_partner_kanban" default_group_by="stage_id"
+                    quick_create="false" group_create="false">
+                    <field name="id" />
+                    <field name="name" />
+                    <field name="stage_id" />
+                    <field name="project_id" />
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="oe_kanban_global_click">
+
+                                <div class="oe_kanban_details">
+                                    <strong class="o_kanban_record_title">
+                                        <field name="name" />
+                                        <!-- <field name="project_id" /> -->
+                                    </strong>
+                                </div>
+                                <div role="menuitem">
+                                    <a name="button_purchase" type="object">Tasks</a>
+                                </div>
+                            </div>
+
+
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+        <record id="project_phased_form_view" model="ir.ui.view">
+            <field name="name">project.phase.form</field>
+            <field name="model">project.phase</field>
+            <field name="arch" type="xml">
+                <form string="form">
+                    <header>
+                        <field name="stage_id" widget="statusbar"
+                            options="{'clickable': '1', 'fold_field': 'fold'}" />
+                        <button name='phase_create_task' type='object' string='Create task'
+                            class='oe_highlight' />
+                        <button name='generate_picking' type='object' string='Generate Picking'
+                            class='oe_highlight' attrs="{'invisible': [('checking', '=', True)]}" />
+                    </header>
+                    <sheet>
+
+                        <div name="button_box">
+                            <button class="oe_stat_button" type="object"
+                                name="button_applicant_backend"
+                                icon="fa-tasks">
+                                <field string="Tasks" name="position_filled_count" widget="statinfo" />
+                            </button>
+                        </div>
+
+                        <div class="oe_title pe-0">
+                            <h1 class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex w-100">
+                                    <!-- <field name="priority" widget="priority" class="me-3"/> -->
+                                    <field name="name"
+                                        class="o_task_name text-truncate w-100 w-md-75 pe-2"
+                                        placeholder="Phase Title..."
+                                        attrs="{'readonly': [('checking', '=', True)]}" required="1"/>
+                                </div>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name='project_id'
+                                    attrs="{'readonly': [('checking', '=', True)]}" />
+                                <field name='assignees'
+                                    attrs="{'readonly': [('checking', '=', True)]}" />
+                                <field name='sale_id' readonly='1' />
+                            </group>
+                            <group>
+                                <field name='partner_id'
+                                    attrs="{'readonly': [('checking', '=', True)]}" />
+                                <field name='dead_line'
+                                    attrs="{'readonly': [('checking', '=', True)]}" />
+                                <field name='company_id'
+                                    attrs="{'readonly': [('checking', '=', True)]}" />
+                                <field name='warehouse_id'
+                                    attrs="{'readonly': [('checking', '=', True)]}" />
+                                <field name='checking' invisible='1' />
+
+                            </group>
+                        </group>
+                        <group>
+                            <group>
+                                <group>
+                                    <group>
+                                        <button name="add_components" string="Generate BOQ"
+                                            class="oe_highlight"
+                                            type="object" />
+                                    </group>
+
+                                    <group>
+                                        <button name="update_components" string="Update Components"
+                                            class="btn-primary"
+                                            type="object" />
+                                    </group>
+                                </group>
+                            </group>
+                        </group>
+                        <notebook>
+                            <page name="boq_details" string="Boq Detalis">
+                                <field name='boq_line_ids'
+                                    attrs="{'readonly': [('checking', '=', True)]}">
+                                    <tree editable='bottom'>
+                                        <field name='product_id' />
+                                        <field name='description' />
+                                        <field name='product_uom_qty' />
+                                        <field name='uom_id' />
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="material_details" string="Materials">
+                                <field name='material_line_ids' readonly='1'>
+                                    <tree edit='false'>
+                                        <field name='product_id' />
+                                        <field name='description' />
+                                        <field name='product_uom_qty' />
+                                        <field name='uom_id' />
+                                        <field name="price_unit" invisible="1"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+
+                            <page name="labour_details" string="Labours">
+                                <field name='labour_line_ids' readonly='1'>
+                                    <tree edit='false'>
+                                        <field name='product_id' />
+                                        <field name='description' />
+                                        <field name='product_uom_qty' />
+                                        <field name='uom_id' />
+                                    </tree>
+                                </field>
+                            </page>
+
+                            <page name="equipment_details" string="Equipments">
+                                <field name='equipment_line_ids' readonly='1'>
+                                    <tree edit='false'>
+                                        <field name='product_id' />
+                                        <field name='description' />
+                                        <field name='product_uom_qty' />
+                                        <field name='uom_id' />
+                                    </tree>
+                                </field>
+                            </page>
+                            <page name="phase_budget" string="Phase Budget Management">
+                                <group>
+                                    <field name="project_cost"/>
+                                    <field name="planned_material_cost"/>
+                                    <field name="actual_material_cost"/>
+                                    <field name="utilization_cost"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="project_phased_value_action" model="ir.actions.act_window">
+            <field name="name">Project Phase</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">project.phase</field>
+            <field name="view_mode">tree,form,kanban</field>
+        </record>
+
+        <menuitem name="Project Phase"
+            id="project_phase_values"
+            parent="project.menu_project_config"
+            action="project_phased_value_action" />
+
+
+        <record id="project_project_view_kanban_inherit" model="ir.ui.view">
+            <field name="name">project.project.view.kanban.inherit</field>
+            <field name="model">project.project</field>
+            <field name="inherit_id" ref="project.view_project_kanban" />
+            <field name="arch" type="xml">
+<!--                <xpath expr="/kanban" position="inside">-->
+<!--                     <field name="id"/> -->
+<!--                </xpath>-->
+                <xpath expr="//div[hasclass('o_kanban_manage_view')]" position="inside">
+                    <div role="menuitem">
+                        <a name="action_button_value" type="object">Phases</a>
+                    </div>
+                </xpath>
+                <xpath expr="//div[hasclass('oe_kanban_bottom_left')]" position="inside">
+                    <div role="menuitem">
+                        <a name="action_button_value" type="object">Phases <span class="o_value">
+                                <field name="phase_count" />
+                            </span></a>
+
+
+                    </div>
+                </xpath>
+            </field>
+        </record>
+
+
+        <record id="project_task_form_view" model="ir.ui.view">
+            <field name="name">project.task.form</field>
+            <field name="model">project.task</field>
+            <field name="inherit_id" ref="project.view_task_form2" />
+            <field name="arch" type="xml">
+                <field name='user_ids' position='after'>
+                    <field name='phase_id' readonly='1' />
+                </field>
+                <xpath expr="//header" position="inside">
+                    <button name="material_requisition" string="Generate Material Requisition"
+                        class="oe_highlight"
+                        type="object" />
+                </xpath>
+                <div name="button_box" position="inside">
+                    <button class="oe_stat_button" type="object" name="show_mrs" icon="fa-tasks">
+                        <field string="MRS" name="mrs_count" widget="statinfo"/>
+                    </button>
+                </div>
+                <field name='task_properties' position='after'>
+                    <group>
+                        <group>
+                            <group>
+                                <group>
+                                    <button name="add_components_material" string="Generate BOQ"
+                                        class="oe_highlight"
+                                        type="object" />
+                                </group>
+                                <group>
+                                    <button name="update_components" string="Update Components"
+                                        class="btn-primary"
+                                        type="object" />
+                                </group>
+                            </group>
+                        </group>
+                    </group>
+                </field>
+
+                <page name='extra_info' position='after'>
+                    <page name='boq_details' string='Boq Details'>
+                        <field name='boq_line_ids'>
+                            <tree editable='bottom'>
+                                <field name='product_id' />
+                                <field name='description' />
+                                <field name='product_uom_qty' />
+                                <field name='uom_id' />
+                            </tree>
+                        </field>
+                    </page>
+                    <page name='material_details' string='Material'>
+                        <field name='material_line_ids' readonly='1'>
+                            <tree>
+                                <field name='product_id' />
+                                <field name='description' />
+                                <field name='product_uom_qty' />
+                                <field name="allocated_qty" readonly="1" force_save="1"/>
+                                <field name="pending_qty" readonly="1" force_save="1"/>
+                                <field name='uom_id' />
+                                <field name="price_unit" invisible="1"/>
+                            </tree>
+                        </field>
+                    </page>
+
+                    <page name='labour_details' string='Labour'>
+                        <field name='labour_line_ids' readonly='1'>
+                            <tree>
+                                <field name='product_id' />
+                                <field name='description' />
+                                <field name='product_uom_qty' />
+                                <field name='uom_id' />
+                            </tree>
+                        </field>
+                    </page>
+                    <page name='equipment_details' string='Equipment'>
+                        <field name='equipment_line_ids' readonly='1'>
+                            <tree>
+                                <field name='product_id' />
+                                <field name='description' />
+                                <field name='product_uom_qty' />
+                                <field name='uom_id' />
+                            </tree>
+                        </field>
+                    </page>
+                </page>
+
+            </field>
+        </record>
+
+
+        <record id="dynamic_stages_form_view" model="ir.ui.view">
+            <field name="name">dynamic.stages.form</field>
+            <field name="model">dynamic.stages</field>
+            <field name="arch" type="xml">
+                <form string="form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name='name' />
+                                <field name='sequence' />
+                                <field name='fold' />
+                                <field name='project_id' />
+
+                            </group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="phase_stage_value_action" model="ir.actions.act_window">
+            <field name="name">Stage</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">dynamic.stages</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Phase Stage"
+            id="project_phase_stages"
+            parent="project.menu_project_config"
+            action="phase_stage_value_action" />
+
+
+        <record id="picking_management_form_view" model="ir.ui.view">
+            <field name="name">picking_management.form</field>
+            <field name="model">picking.management</field>
+            <field name="arch" type="xml">
+                <form string="form">
+                    <header>
+                        <button name='generate_qty' type='object' string='check stock availability'
+                            class='oe_highlight' states="draft"/>
+                        <button name="action_pdf_report" type="object" string="Print PDF" class="oe_highlight" states="consolidated"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,planned,picked,consolidated" />
+
+                    </header>
+                    <sheet>
+
+                        <div class="oe_title pe-0">
+                            <h1 class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex w-100">
+                                    <!-- <field name="priority" widget="priority" class="me-3"/> -->
+                                    <field name="name"
+                                        class="o_task_name text-truncate w-100 w-md-75 pe-2"
+                                        readonly='1' />
+                                </div>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+                                <field name='project_id' attrs="{'invisible': [('state', '=', 'consolidated')]}"/>
+                                <field name='phase_id' attrs="{'invisible': [('state', '=', 'consolidated')]}"/>
+                                <field name="consolidated_project_id" widget="many2many_tags" attrs="{'invisible': [('state', '!=', 'consolidated')]}" readonly="1"/>
+                                <field name="consolidated_phase_id" widget="many2many_tags" attrs="{'invisible': [('state', '!=', 'consolidated')]}" readonly="1"/>
+                                <field name='warehouse_id' />
+
+                            </group>
+                            <group>
+
+                                <field name="date"/>
+                                <field name='company_id' />
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string='Material Details'>
+                                <field name='material_line_ids' readonly='1'>
+                                    <tree editable='false' create='false' delete='false'>
+                                        <field name='product_id' />
+                                        <field name='description' />
+                                        <field name='uom_id' />
+                                        <field name='expected_qty' />
+                                        <field name='available_qty' />
+                                        <field name='checking' invisible='1' />
+                                        <field name='current_qty' invisible='1' />
+                                        <field name='onhand_quantity' invisible='1' />
+                                        <field name='prev_onhand' invisible='1' />
+                                        <field name='total_quantity' invisible='1' />
+                                        <field name='picking_quntity' />
+                                    </tree>
+                                </field>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="picking_management_view" model="ir.ui.view">
+            <field name="name">picking.management.tree</field>
+            <field name="model">picking.management</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree multi_edit="0" edit="0">
+                    <field name="name"/>
+                    <field name="project_id"/>
+                    <field name="phase_id"/>
+                    <field name="warehouse_id"/>
+                    <field name="state"/>
+                    <field name="date"/>
+                    <field name="company_id"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="picking_management_action" model="ir.actions.act_window">
+            <field name="name">Picking</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">picking.management</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem name="Picking Management"
+            id="picking_management_values"
+            parent="stock.menu_stock_warehouse_mgmt"
+            action="picking_management_action" />
+
+
+    </data>
+
+
+</odoo>

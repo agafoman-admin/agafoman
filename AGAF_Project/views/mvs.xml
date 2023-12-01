@@ -1,0 +1,108 @@
+<odoo>
+    <data>
+        <record id="material_issue_voucher_form_view" model="ir.ui.view">
+            <field name="name">material.issue.voucher.form</field>
+            <field name="model">material.issue.voucher</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Material Issue Voucher">
+                        <header>
+                            <button name="action_waiting_for_approval" string="Send For Approval" type="object" states="draft" class="oe_highlight" groups="AGAF_Project.group_store_user"/>
+                            <button name="action_approved" string="Approve" type="object" states="waiting_for_approval" class="oe_highlight" groups="AGAF_Project.group_store_manager"/>
+                            <button name="action_rejected" string="Reject" type="object" states="waiting_for_approval" class="oe_highlight"  groups="AGAF_Project.group_store_manager"/>
+                            <field name="state" widget="statusbar" statusbar_visible="draft,waiting_for_approval,approved,rejected" />
+                        </header>
+                    <sheet>
+                        <h1>
+                            <field name="name"/>
+                        </h1>
+                        <group>
+                            <group>
+                                <field name="mrs_no" attrs="{'readonly': [('state', 'in', ['approved','rejected'])]}"/>
+                                <field name="project_id" readonly="1" force_save="1" />
+                                <field name="task_id" readonly="1" force_save="1" />
+                                <field name="phase_id" readonly="1" force_save="1" />
+                                <field name="department_id" readonly="1" force_save="1"/>
+                                <field name="company_id" readonly="1" force_save="1"/>
+                            </group>
+                            <group>
+                                <field name="issued_date" attrs="{'readonly': [('state', 'in', ['rejected','approved'])]}"/>
+                                <field name="requestor_name" required="1" readonly="1" force_save="1"/>
+                                <field name="requested_for" attrs="{'readonly': [('state', 'in', ['rejected','approved'])]}"/>
+                                <field name="location_id" attrs="{'readonly': [('state', 'in', ['rejected','approved'])]}" required="1"/>
+                                <field name="location_dest_id" attrs="{'readonly': [('state', 'in', ['rejected','approved'])]}" required="1"/>
+
+                                <field name="requested_comments"/>
+                                <field name="requested_by" readonly="1" invisible="1"/>
+                                <field name="approved_by" readonly="1" invisible="1"/>
+                                <field name="approved_date" readonly="1" invisible="1"/>
+<!--                                <button name="compute_requisitions_lines" type="object" class="oe_highlight" string="Generate Lines" style="width:180px;"/>-->
+                            </group>
+                        </group>
+                        <notebook>
+                            <page string="Transfer Materials">
+                                <field name="slip_line_ids" widget="one2many" attrs="{'readonly': [('state', 'in', ['rejected','approved'])]}">
+                                    <tree string="Materials" create="false" delete="false" editable="bottom" limit="25">
+                                        <field name="sr_no" readonly="1"/>
+                                        <field name="product_id" readonly="1"/>
+                                        <field name="product_qty" readonly="1"/>
+                                        <field name="allocated_qty" />
+                                        <field name="uom_id" readonly="1"/>
+                                        <field name="rate" readonly="1" invisible="1"/>
+                                        <field name="remark"/>
+                                    </tree>
+                                </field>
+                            </page>
+
+
+                            <page string="Audit Trail">
+                                <field name="trail_ids" >
+                                    <tree create="false" delete="false" editable="bottom">
+                                        <field name="date" readonly="1"/>
+                                        <field name="author_id" readonly="1"/>
+                                        <field name="to_stage" readonly="1"/>
+                                        <field name="remark"/>
+                                    </tree>
+                                </field>
+                            </page>
+                            <page string="Reject Reason" attrs="{'invisible': [('state', '!=', 'rejected')]}">
+                                <field name="reject_reason" readonly="1" force_save="1"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="material_issue_voucher_tree_view" model="ir.ui.view">
+            <field name="name">material.issue.voucher.tree</field>
+            <field name="model">material.issue.voucher</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree multi_edit="0" edit="0">
+                    <field name="name"/>
+                    <field name="mrs_no"/>
+                    <field name="department_id"/>
+                    <field name="project_id"/>
+                    <field name="issued_date"/>
+                    <field name="requestor_name"/>
+                    <field name="company_id"/>
+                </tree>
+            </field>
+        </record>
+
+         <record model="ir.actions.act_window" id="action_transfer_slip">
+              <field name="name">Material Issue Voucher</field>
+              <field name="res_model">material.issue.voucher</field>
+              <field name="view_mode">tree,form</field>
+         </record>
+
+        <menuitem
+            id="material_issue_voucher"
+            name="Material Issue Voucher"
+            parent="stock.menu_stock_warehouse_mgmt"
+            action="action_transfer_slip"
+            sequence="210"/>
+
+    </data>
+</odoo>

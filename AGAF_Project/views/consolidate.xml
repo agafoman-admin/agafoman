@@ -1,0 +1,12 @@
+<odoo>
+    <data>
+        <record id="action_consolidate_entry" model="ir.actions.server">
+            <field name="name">Consolidate</field>
+            <field name="model_id" ref="AGAF_Project.model_picking_management"/>
+            <field name="binding_model_id" ref="AGAF_Project.model_picking_management"/>
+            <field name="binding_view_types">list</field>
+            <field name="state">code</field>
+            <field name="code">action = records.action_consolidated()</field>
+        </record>
+    </data>
+</odoo>

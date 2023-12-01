@@ -1,0 +1,78 @@
+<odoo>
+
+    <data>
+
+        <record id="action_picking_report_pdf" model="ir.actions.report">
+            <field name="name">Picking Report</field>
+            <field name="model">picking.management</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">AGAF_Project.agaf_picking_report</field>
+            <field name="report_file">AGAF_Project.agaf_picking_report</field>
+            <field name="print_report_name">'Picking Report'</field>
+            <field name="binding_model_id" ref="model_picking_management" />
+        </record>
+        <template id="agaf_picking_report">
+            <t t-call="web.html_container">
+                <t t-call="web.external_layout">
+                    <div class="page">
+
+                        <div>
+                            <h2>
+                                <span t-field="docs.name"></span>
+                            </h2>
+                        </div>
+                        <br></br>
+                        <div class="row">
+                            <div class="col-3" style="margin-right: 100px;">
+                                <b>Project:</b>
+                                <span t-field="docs.project_id" />
+                            </div>
+                            <div class="col-3" style="margin-right: 110px;">
+                                <b>Phase:</b>
+                                <span t-field="docs.phase_id" />
+                            </div>
+
+                            <div class="col-3">
+                                <b>Date:</b>
+                                <span t-esc="time.strftime('%d-%m-%Y')" />
+                            </div>
+                        </div>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th
+                                        style='text-transform: none;font-size: 18px;text-align:left;'>
+                                        Product</th>
+                                    <th
+                                        style='text-transform: none;font-size: 18px;text-align:left;'>Picking
+                                        Qty</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="docs.material_line_ids" t-as="o">
+                                    <tr t-if="o.picking_quntity >0">
+                                        <td>
+                                            <span t-field="o.product_id.name"></span>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.picking_quntity"></span>
+                                        </td>
+
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+
+
+                    </div>
+
+                </t>
+            </t>
+        </template>
+
+
+    </data>
+
+
+</odoo>

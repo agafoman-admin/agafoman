@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <template id="external_layout_sme_tender">
+        <t t-if="not o and doc">
+            <t t-set="o" t-value="doc"/>
+        </t>
+        <t t-if="o and 'company_id' in o">
+            <t t-set="company" t-value="o.company_id"></t>
+        </t>
+        <t t-if="not o or not 'company_id' in o">
+            <t t-set="company" t-value="res_company"></t>
+        </t>
+        <div>
+            <t t-call="AGAF_sales.basic_layout_header_tender"/>
+            <div t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout"
+                 t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id"
+                 t-att-data-oe-lang="o and o.env.context.get('lang')">
+                <t t-out="0"/>
+            </div>
+            <!--            <t t-call="AGAF_sales.basic_layout_footer_tender"/>-->
+        </div>
+    </template>
+
+    <template id="basic_layout_header_tender">
+
+        <div t-attf-class="header o_company_#{company.id}_layout">
+            <div class="row">
+                <div class="col-3">
+                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height: 45px;"
+                         alt="Logo"/>
+                </div>
+            </div>
+            <div style="border-bottom: 1px solid black;"/>
+        </div>
+    </template>
+
+    <template id="basic_layout_footer_tender">
+        <div t-attf-class="footer  o_standard_footer o_company_#{company.id}_layout">
+<!--            <img src="/pragmatic_project/static/images/HME_Footer_Odoo.png" style="width: 100%;"/>-->
+        </div>
+    </template>
+
+    <template id="quotation_certificate_template">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-call="AGAF_sales.external_layout_sme_tender" t-lang="o.user_id.lang">
+                    <div style="page-break-after:always"></div>
+                    <table class="table table-sm table-borderless" style="page-break-inside: avoid;">
+                        <thead>
+                            <tr style="text-align: center;">
+                                <th>Quotation Details</th>
+                            </tr>
+                        </thead>
+                    </table>
+                    <div style="border-bottom: 2px solid black;"/>
+                    <br/>
+                    <div class="row">
+                        <div class="col-6" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    TO</b>:
+                                    <t t-esc="o.partner_id.name"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Quotation No.</b>:
+                                    <t t-esc="o.name"/>
+                                </li>
+                                <br/>
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    DATE</b>:
+                                    <t t-esc="o.date_order"/>
+                                </li>
+                                <br/>
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    REF.No.</b>:
+                                    <t t-esc="o.ref_no"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-12" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Project Description</b>:
+                                    <t t-esc="o.estimation_id.opportunity_id.name"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                    </div>
+                    <br/>
+                    <br/>
+                    <div class="row">
+                        <table class="table table-sm " style="page-break-inside: avoid;">
+                            <tbody>
+                                <tr style="font-weight:bold">
+                                    <td>SL NO</td>
+                                    <td>Item Code</td>
+                                    <td>Description</td>
+                                    <td>UoM</td>
+                                    <td>QTY</td>
+                                    <td>Unit Rate</td>
+                                    <td/>
+                                    <td>Total Amount</td>
+                                    <td/>
+                                </tr>
+                                <tr style="font-weight:bold">
+                                    <td/>
+                                    <td/>
+                                    <td/>
+                                    <td/>
+                                    <td/>
+                                    <td>Materials</td>
+                                    <td>Labour</td>
+                                    <td>Materials</td>
+                                    <td>Labour</td>
+                                </tr>
+                                <t t-as="lines" t-foreach="o.group_by_work_type()">
+                                    <tr >
+                                        <td colspan="9">
+                                            <t t-esc="lines"/>
+                                        </td>
+
+                                    </tr>
+                                    <tr t-as="linesv" t-foreach="lines_value">
+                                        <td><span t-esc="linesv_index+1"/></td>
+                                        <td><t t-esc="linesv.product_id.default_code"/></td>
+                                        <td><t t-esc="linesv.product_id.name"/></td>
+                                        <td><t t-esc="linesv.product_uom.name"/></td>
+                                        <td><t t-esc="'{0:,.3f}'.format(linesv.product_uom_qty)"/></td>
+                                        <td><t t-esc="'{0:,.3f}'.format(linesv.material_rate)"/></td>
+                                        <td><t t-esc="'{0:,.3f}'.format(linesv.labour_rate+linesv.equipment_rate)"/></td>
+                                        <td><t t-esc="'{0:,.3f}'.format(linesv.material_rate*linesv.product_uom_qty)"/></td>
+                                        <td><t t-esc="'{0:,.3f}'.format((linesv.labour_rate+linesv.equipment_rate)*linesv.product_uom_qty)"/></td>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td colspan="7">TOTAL MATERIAL &amp; LABOUR	</td>
+                                    <td>
+                                        <t t-set="sum_row2" t-value="0"/>
+                                        <t t-foreach="o.order_line" t-as="order_line">
+                                            <t t-set="sum_row2" t-value="sum_row2+(order_line.material_rate*order_line.product_uom_qty)"/>
+                                        </t>
+                                        <t t-esc="'{0:,.3f}'.format(sum_row2)"/>
+                                    </td>
+                                    <td>
+                                        <t t-set="sum_row3" t-value="0"/>
+                                        <t t-foreach="o.order_line" t-as="order_line">
+                                            <t t-set="sum_row3" t-value="sum_row3+((order_line.labour_rate+order_line.equipment_rate)*order_line.product_uom_qty)"/>
+                                        </t>
+                                        <t t-esc="'{0:,.3f}'.format(sum_row3)"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="7">Total Amount</td>
+                                    <td colspan="2">
+                                        <t t-esc="'{0:,.3f}'.format(sum_row3+sum_row2)"/>
+                                    </td>
+                                </tr>
+
+                                    <t t-set="sum_tax" t-value="0"/>
+                                    <t t-foreach="o.set_tax_line()" t-as="tax">
+                                        <t t-set="sum_tax" t-value="sum_tax+tax_value"/>
+                                        <tr>
+                                            <td colspan="7"><span t-esc="tax"/></td>
+                                            <td colspan="2"><span t-esc="'{0:,.3f}'.format(tax_value)"/></td>
+                                        </tr>
+                                    </t>
+
+                                <tr>
+                                    <td colspan="7">
+                                        <t t-esc="o.currency_id.amount_to_text(sum_row3+sum_row2+sum_tax)"/>
+                                    </td>
+                                    <td colspan="2">
+                                        <t t-esc="'{0:,.3f}'.format(sum_row3+sum_row2+sum_tax)"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <br/>
+                    <br/>
+                    <div class="row">
+                        <div class="col-6" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Terms &amp; Conditions</b>:
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Payment Terms </b>:
+                                </li>
+
+                                <br/>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;">
+                                    <t t-esc="o.note"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;">
+                                    <t t-esc="o.payment_term_id.name"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-6" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Prepared By </b>:
+
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                        <div class="col-6" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
+                                    Authorized Signatory</b>:
+<!--                                    <t t-esc="o.company_id.name"/>-->
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                    </div>
+                    <br/>
+                    <div class="row">
+                        <div class="col-6" style="margin-left:1em;">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;">
+                                    <t t-esc="o.user_id.name"/>
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                        <div class="col-6">
+                            <ul style="list-style: none;display: table;">
+                                <li style="display: table-row;">
+<!--                                    <t t-esc="o.payment_term_id.name"/>-->
+                                </li>
+                                <br/>
+                            </ul>
+                        </div>
+                    </div>
+                    <br/>
+                </t>
+            </t>
+        </t>
+    </template>
+
+</odoo>

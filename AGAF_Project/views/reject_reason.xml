@@ -1,0 +1,38 @@
+<odoo>
+    <data>
+        <record id="slip_reject_reason_wizard" model="ir.ui.view">
+            <field name="name">slip.reject.reason.wizard.view</field>
+            <field name="model">slip.reject.reason.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="reason"/>
+                        <field name="slip_id" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button name="add_reject_reason" string="Confirm" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="btn btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="transfer_reject_reason_wizard" model="ir.ui.view">
+            <field name="name">transfer.reject.reason.wizard.view</field>
+            <field name="model">transfer.reject.reason.wizard</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="reason"/>
+                        <field name="slip_id" invisible="1"/>
+                    </group>
+                    <footer>
+                        <button name="add_reject_reason" string="Confirm" type="object" class="oe_highlight"/>
+                        <button string="Cancel" class="btn btn-default" special="cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

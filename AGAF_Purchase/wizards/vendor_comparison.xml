@@ -1,0 +1,44 @@
+<odoo>
+    <data>
+        <record id="vendor_comparison_form_view" model="ir.ui.view">
+            <field name="name">vendor.comparison</field>
+            <field name="model">vendor.comparison</field>
+            <field name="arch" type="xml">
+                <form string="form">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name='requester_types' options="{'no_create': True, 'no_create_edit':True}" />
+
+                            </group>
+
+                        </group>
+
+
+                        <footer>
+                        <button name='vendor_all_details' type='object' string='Submit'  default_focus="1" class="oe_highlight"/>
+                        <button string="Cancel" class="btn btn-default" special="cancel"/>
+
+                      </footer>
+
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="wizard_form_vendor_comparison" model="ir.actions.act_window">
+            <field name="name">Vendor Comparison</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">vendor.comparison</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+
+        <menuitem name="Vendor Comparison Report"
+        id="vendor_comparison"
+        parent="purchase.purchase_report_main"
+        action="wizard_form_vendor_comparison" />
+
+
+    </data>
+</odoo>

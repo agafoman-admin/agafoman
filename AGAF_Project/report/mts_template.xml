@@ -1,0 +1,15 @@
+<odoo>
+    <data>
+        <record id="material_issue_voucher_template_report" model="ir.actions.report">
+            <field name="name">Material Issue Voucher</field>
+            <field name="model">material.issue.voucher</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">AGAF_Project.material_issue_voucher_template</field>
+            <field name="report_file">AGAF_Project.material_issue_voucher_template</field>
+            <field name="print_report_name">'Material Issue Voucher - %s' % (object.name)</field>
+            <field name="binding_model_id" ref="model_material_issue_voucher"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="AGAF_Project.paper_slip"/>
+        </record>
+    </data>
+</odoo>
