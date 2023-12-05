@@ -96,6 +96,7 @@ class SaleOrder(models.Model):
     margin_pr = fields.Float("Margin(%)")
     new_project_id = fields.Many2one('project.project', string="Project")
     ref_no = fields.Char("Ref.No.")
+    sale_user_id = fields.Many2one('res.users', string="Confirm Sale User")
 
     def _find_mail_template(self):
         """ Get the appropriate mail template for the current sales order based on its state.
@@ -292,8 +293,11 @@ class SaleOrder(models.Model):
         row += 2
         sheet.write_merge(row, row+1, 0, 1, 'Prepared By:', style7)
         sheet.write_merge(row, row+1, 2, 5, self.user_id.name, style6)
-        sheet.write_merge(row, row+1, 6, 7, 'Authorized Signatory:', style7)
-        sheet.write_merge(row, row+1, 8, 12, '', style6)
+        sheet.write_merge(row, row+1, 6, 7, 'Approved By:', style7)
+        if self.sale_user_id.name:
+            sheet.write_merge(row, row+1, 8, 12, self.sale_user_id.name, style6)
+        else:
+            sheet.write_merge(row, row + 1, 8, 12, '', style6)
 
         sheet.col(0).width = 1500
         sheet.col(1).width = 1500
@@ -371,6 +375,7 @@ class SaleOrder(models.Model):
              'company_id': self.company_id.id, 'partner_id':self.partner_id.id})
         self.visible_project = True
         self.new_project_id = project_id
+        self.sale_user_id = self.env.uid
         self.picking_ids.unlink()
 
     def add_components(self):

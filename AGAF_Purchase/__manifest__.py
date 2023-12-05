@@ -15,7 +15,7 @@
         'views/purchase_order.xml',
         'wizards/vendor_comparison.xml'
     ],
-    'assets': {'web.assets_backend': 
+    'assets': {'web.assets_backend':
                ['AGAF_Purchase/static/src/js/action_manager.js',
                 ],
                 },

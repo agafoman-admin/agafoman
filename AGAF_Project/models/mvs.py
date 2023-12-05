@@ -7,7 +7,7 @@ from datetime import datetime, date
 class MaterialIssueVoucher(models.Model):
     _name = 'material.issue.voucher'
 
-    name = fields.Char("MTS No.", copy=False, required=True, readonly=True, default=lambda self: self.env['ir.sequence'].next_by_code('material.issue.voucher'), tracking=True)
+    name = fields.Char("MIV No.", copy=False, required=True, readonly=True, default=lambda self: self.env['ir.sequence'].next_by_code('material.issue.voucher'), tracking=True)
     mrs_no = fields.Many2one('material.requisition.slip', string="MRS No.", domain=[('state','=','approved')])
     department_id = fields.Many2one(related="mrs_no.department_id", string="Department",
                                     copy=False)
@@ -147,9 +147,9 @@ class MaterialIssueVoucher(models.Model):
                 quants = self.env['stock.quant'].create({
                     'location_id': self.location_dest_id.id,
                     'product_id': rec.product_id.id,
-                    'inventory_quantity': rec.allocated_qty
+                    'quantity': rec.allocated_qty
                 })
-                quants.action_apply_inventory()
+                # quants.action_apply_inventory()
                 # for product in quants:
                 #     product.sudo().reserved_quantity = product.reserved_quantity - (rec.allocated_qty)
                 #     product.sudo().quantity = product.quantity - rec.allocated_qty

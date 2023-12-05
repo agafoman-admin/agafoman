@@ -678,9 +678,9 @@ class picking_management(models.Model):
                     quants = self.env['stock.quant'].create({
                         'location_id': replace_stock.id,
                         'product_id': rec.product_id.id,
-                        'inventory_quantity': quantity_done
+                        'quantity': quantity_done
                     })
-                    quants.action_apply_inventory()
+                    # quants.action_apply_inventory()
                     rec.picking_quntity = rec.expected_qty - rec.available_qty
                     if consumed_qty == rec.expected_qty:
                         break
