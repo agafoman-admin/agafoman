@@ -283,7 +283,7 @@ class EstimationWorks(models.Model):
                                      tracking=True, currency_field='currency_id')
     material_total = fields.Monetary("Total Material Cost", compute="_compute_total_cost",  store=True, tracking=True)
     labour_total = fields.Monetary("Total Labour Cost", compute="_compute_total_cost",  store=True, tracking=True)
-    equipment_total = fields.Monetary("Total Equipment Total", compute="_compute_total_cost",  store=True, tracking=True)
+    equipment_total = fields.Monetary("Total Civil Works", compute="_compute_total_cost",  store=True, tracking=True)
     state = fields.Selection([('draft', 'Draft'), ('waiting_for_approval', 'Waiting For Approval'), ('quotation_created', 'Quotation Created'), ('reject', 'Reject'), ('cancel', 'Cancel')], string='Status', readonly=True, copy=False,
                              default='draft', tracking=True)
     quotation_id = fields.Many2one('sale.order', string="Quotation", copy=False, tracking=True)

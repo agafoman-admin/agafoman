@@ -282,7 +282,7 @@
                             type="object" attrs="{'invisible': ['|',('enquiry_type', '=', 'bid'),('enquiry_type', '=', False)]}"/>
                 </field>
                 <xpath expr="//tree/field[@name='product_uom_qty']" position="after">
-                    <field name="work_type_id"/>
+                    <field name="work_type_id" required="1"/>
                     <field name="enquiry_type" invisible="1"/>
                     <field name="margin_pr" readonly="1" widget="percentage" attrs="{'column_invisible': [('enquiry_type', '!=', 'bid')]}"/>
                 </xpath>
@@ -336,7 +336,7 @@
                             </tree>
                         </field>
                     </page>
-                    <page name="equipments" string="Equipments" attrs="{'invisible': [('enquiry_type', 'not in', ['bid','fixed'])]}">
+                    <page name="equipments" string="Civil Works" attrs="{'invisible': [('enquiry_type', 'not in', ['bid','fixed'])]}">
                         <field name="equipment_line_ids" style="pointer-events:none;">
                             <tree edit="false" create="false" delete="false">
                                 <field name="product_tmpl_id" required="1" readonly="1"/>

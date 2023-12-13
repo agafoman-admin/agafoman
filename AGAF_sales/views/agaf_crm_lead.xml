@@ -218,7 +218,7 @@
                                     </tree>
                                 </field>
                             </page>
-                            <page name="equipments" string="Equipments">
+                            <page name="equipments" string="Civil Works">
                                 <field name="equipment_line_ids" style="pointer-events:none;">
                                     <tree edit="false" create="false" delete="false">
                                         <field name="product_tmpl_id" required="1" readonly="1"/>

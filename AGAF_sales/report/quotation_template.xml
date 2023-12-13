@@ -193,7 +193,7 @@
                         <div class="col-6" style="margin-left:1em;">
                             <ul style="list-style: none;display: table;">
                                 <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
-                                    Payment Terms </b>
+                                    Payment Terms: </b>
                                 </li>
                                 <br/>
                             </ul>
@@ -201,7 +201,7 @@
                         <div class="col-6">
                             <ul style="list-style: none;display: table;">
                                 <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
-                                    Terms &amp; Conditions </b>
+                                    Terms &amp; Conditions: </b>
                                 </li>
                                 <br/>
                             </ul>
@@ -231,7 +231,7 @@
                         <div class="col-6" style="margin-left:1em;">
                             <ul style="list-style: none;display: table;">
                                 <li style="display: table-row;"><b style="display: table-cell;padding-right: 1em;">
-                                    Prepared By </b>
+                                    Prepared By: </b>
                                 </li>
                                 <br/>
                             </ul>
@@ -239,7 +239,7 @@
                         <div class="col-6">
                             <ul style="list-style: none;display: table;">
                                 <li style="display: table-row;"><b style="display: table-cell;padding-right: 2em;">
-                                    Approved By </b>
+                                    Approved By: </b>
                                 </li>
                                 <br/>
                             </ul>
@@ -250,7 +250,7 @@
                         <div class="col-6" style="margin-left:1em;">
                             <ul style="list-style: none;display: table;">
                                 <li style="display: table-row;">
-                                    <t t-esc="o.user_id.name"/>
+                                    <t t-esc="o.create_uid.name"/>
                                 </li>
                                 <br/>
                             </ul>
@@ -258,7 +258,7 @@
                         <div class="col-6">
                             <ul style="list-style: none;display: table;">
                                 <li style="display: table-row;">
-                                    <t t-esc="o.sale_user_id.name"/>
+                                    <t t-esc="o.user_id.name"/>
                                 </li>
                                 <br/>
                             </ul>

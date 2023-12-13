@@ -30,6 +30,7 @@ class project_phase_task(models.Model):
     planned_material_cost = fields.Float(string="Planned Material Cost", compute="set_planned_material_cost")
     actual_material_cost = fields.Float("Actual Material Cost", compute="set_actual_material_cost")
     utilization_cost = fields.Float("Difference", compute="set_utilization_cost")
+    civil_works_budget = fields.One2many('civil.works.budget','phase_id', string="Civil Works")
 
     @api.depends('planned_material_cost','actual_material_cost')
     def set_utilization_cost(self):
@@ -48,7 +49,7 @@ class project_phase_task(models.Model):
                 for material in voucher.slip_line_ids:
                     total += material.allocated_qty * material.rate
             data.actual_material_cost = total
-        return
+        # return
 
     @api.depends('planned_material_cost')
     def set_planned_material_cost(self):
@@ -92,6 +93,12 @@ class project_phase_task(models.Model):
             }
 
     def phase_create_task(self):
+        vals = []
+        for line in self.civil_works_budget:
+            vals.append((0, 0, {
+                'product_id': line.product_id.id,
+                'uom_id': line.uom_id.id,
+            }))
         return {
             'name': "Project Task",
             'type': 'ir.actions.act_window',
@@ -99,7 +106,9 @@ class project_phase_task(models.Model):
             'view_mode': 'form',
             'res_model': 'project.task',
             'context': {'default_phase_id': self._origin.id,
-                        'default_project_id': self.project_id.id}
+                        'default_project_id': self.project_id.id,
+                        'default_equipment_line_ids':vals,
+                        }
         }
 
     def button_applicant_backend(self):
@@ -136,51 +145,49 @@ class project_phase_task(models.Model):
                     # 'uom_id':material.uom_id.id,
                 }))
 
-        if self.sale_id.material_line_ids:
-            for material in self.sale_id.material_line_ids:
-                material_list.append((0, 0, {
-                    'product_id': material.product_tmpl_id.id,
-                    'description': material.description,
-                    'product_uom_qty': material.product_uom_qty,
-                    'uom_id': material.uom_id.id,
-                    'price_unit':material.price_unit,
-                }))
-        if self.sale_id.labour_line_ids:
-            for labour in self.sale_id.labour_line_ids:
-                labour_list.append((0, 0, {
-                    'product_id': labour.product_tmpl_id.id,
-                    'description': labour.description,
-                    'product_uom_qty': labour.product_uom_qty,
-                    'uom_id': labour.uom_id.id,
-
-                }))
-        if self.sale_id.equipment_line_ids:
-            for equ in self.sale_id.equipment_line_ids:
-                equipment_list.append((0, 0, {
-                    'product_id': equ.product_tmpl_id.id,
-                    'description': equ.description,
-                    'product_uom_qty': equ.product_uom_qty,
-                    'uom_id': equ.uom_id.id,
-
-                }))
-        self.write({'material_line_ids': material_list,
-                    'labour_line_ids': labour_list,
-                    'equipment_line_ids': equipment_list,
+        # if self.sale_id.material_line_ids:
+        #     for material in self.sale_id.material_line_ids:
+        #         material_list.append((0, 0, {
+        #             'product_id': material.product_tmpl_id.id,
+        #             'description': material.description,
+        #             'product_uom_qty': material.product_uom_qty,
+        #             'uom_id': material.uom_id.id,
+        #             'price_unit':material.price_unit,
+        #         }))
+        # if self.sale_id.labour_line_ids:
+        #     for labour in self.sale_id.labour_line_ids:
+        #         labour_list.append((0, 0, {
+        #             'product_id': labour.product_tmpl_id.id,
+        #             'description': labour.description,
+        #             'product_uom_qty': labour.product_uom_qty,
+        #             'uom_id': labour.uom_id.id,
+        #
+        #         }))
+        # if self.sale_id.equipment_line_ids:
+        #     for equ in self.sale_id.equipment_line_ids:
+        #         equipment_list.append((0, 0, {
+        #             'product_id': equ.product_tmpl_id.id,
+        #             'description': equ.description,
+        #             'product_uom_qty': equ.product_uom_qty,
+        #             'uom_id': equ.uom_id.id,
+        #
+        #         }))
+        self.write({
+                    # 'material_line_ids': material_list,
+                    # 'labour_line_ids': labour_list,
+                    # 'equipment_line_ids': equipment_list,
                     'boq_line_ids': boq_line_list})
 
     def update_components(self):
+        self.material_line_ids.unlink()
+        self.equipment_line_ids.unlink()
+        self.labour_line_ids.unlink()
         material_list = []
         new_material_list = []
         equipments_list = []
         new_equipments_list = []
         labour_list = []
         new_labour_list = []
-        for material_line in self.material_line_ids:
-            material_line.write({'product_uom_qty': 0})
-        for labour_line in self.labour_line_ids:
-            labour_line.write({'product_uom_qty': 0})
-        for equipment_line in self.equipment_line_ids:
-            equipment_line.write({'product_uom_qty': 0})
         for pricelist in self.boq_line_ids:
             bom = self.env['mrp.bom'].search(
                 [('product_tmpl_id', '=', pricelist.product_id.id)])
@@ -197,10 +204,17 @@ class project_phase_task(models.Model):
                 for material in material_list:
                     old_product_id = self.env['material.details.phase'].search(
                         [('product_id', '=', material.product_id.id), ('phase_id', '=', self.id)])
+
                     if old_product_id:
                         if material not in new_material_list:
-                            old_product_id.product_uom_qty += material.product_qty*pricelist.product_uom_qty
-
+                            old_product_id.product_uom_qty += material.product_uom_qty * pricelist.product_uom_qty
+                    else:
+                        if material not in new_material_list:
+                            self.write({'material_line_ids': [(0, 0, {
+                                'product_id': material.product_id.id,
+                                'product_uom_qty': material.product_qty* pricelist.product_uom_qty,
+                                'uom_id': material.product_id.uom_id.id,
+                            })]})
                     new_material_list.append(material)
             if len(labour_list) >= 1:
                 for labour in labour_list:
@@ -209,6 +223,13 @@ class project_phase_task(models.Model):
                     if old_labour_id:
                         if labour not in new_labour_list:
                             old_labour_id.product_uom_qty += labour.product_qty * pricelist.product_uom_qty
+                    else:
+                        if labour not in new_labour_list:
+                            self.write({'labour_line_ids': [(0, 0, {
+                            'product_id': labour.product_id.id,
+                            'product_uom_qty': labour.product_qty* pricelist.product_uom_qty,
+                            'uom_id': material.product_id.uom_id.id,
+                            })]})
                     new_labour_list.append(labour)
             if len(equipments_list) >= 1:
                 for equipment in equipments_list:
@@ -216,8 +237,16 @@ class project_phase_task(models.Model):
                         [('product_id', '=', equipment.product_id.id), ('phase_id', '=', self.id)])
                     if old_equipment_id:
                         if equipment not in new_equipments_list:
-                            old_equipment_id.product_uom_qty += equipment.product_qty * pricelist.product_uom_qty
+                            old_equipment_id.product_uom_qty += material.product_qty * pricelist.product_uom_qty
+                    else:
+                        if equipment not in new_equipments_list:
+                            self.write({'equipment_line_ids': [(0, 0, {
+                                'product_id': equipment.product_id.id,
+                                'product_uom_qty': equipment.product_qty * pricelist.product_uom_qty,
+                                 'uom_id': material.product_id.uom_id.id,
+                            })]})
                     new_equipments_list.append(equipment)
+
 
     def generate_picking(self):
         self.write({'checking': True})
@@ -237,6 +266,41 @@ class project_phase_task(models.Model):
                 'type': 'rainbow_man',
             }
         }
+class CivilWorksBudget(models.Model):
+    _name = 'civil.works.budget'
+
+
+    phase_id = fields.Many2one('project.phase', string="Phase")
+    product_id = fields.Many2one('product.product',string="Equipment", domain=[('is_equipment','=',True)])
+    uom_id = fields.Many2one(related="product_id.uom_id", string="UOM")
+    planned_hrs = fields.Integer(string="Planned Hrs")
+    unit_rate = fields.Float(related='product_id.standard_price', string="Unit Rate")
+    actual_hours = fields.Float(string="Actual Hrs")
+    planned_budget = fields.Float(string="Planned Budget", compute="calculate_planned_budget")
+    actual_budget = fields.Float(string="Actual Budget", compute="calculate_actual_budget")
+    difference = fields.Float(string="Difference", compute="calculate_difference")
+    sr_no = fields.Integer("S. No.", compute="_sequence_ref", readonly=False)
+
+    def _sequence_ref(self):
+        no = 0
+        for line in self:
+            no += 1
+            line.sr_no = no
+
+    def calculate_difference(self):
+        for data in self:
+            if data.actual_budget > 0:
+                data.difference = data.planned_budget - data.actual_budget
+            else:
+                data.difference = 0
+
+    def calculate_actual_budget(self):
+        for data in self:
+            data.actual_budget = data.actual_hours * data.unit_rate
+
+    def calculate_planned_budget(self):
+        for data in self:
+            data.planned_budget = data.planned_hrs * data.unit_rate
 
 
 class project_inherit(models.Model):
@@ -360,6 +424,44 @@ class project_task(models.Model):
 
 
 
+
+    def write(self,vals):
+        super(project_task, self).write(vals)
+        list_of_dicts = []
+        for data in self:
+            list_of_dicts = []
+            if data.phase_id:
+                task_ids = self.env['project.task'].search([('phase_id', '=', data.phase_id.id)])
+                for equipment in task_ids.mapped('equipment_line_ids'):
+                    if data.id != equipment.id:
+                        is_extra_product = self.env['civil.works.budget'].search(
+                            [('product_id', '=', equipment.product_id.id),('phase_id','=',data.phase_id.id)])
+                        if not is_extra_product:
+                            raise UserError(
+                                _("%s Added civil work is not available in phase please contact the project cordinator"%equipment.product_id.name))
+                        list_of_dicts.append({
+                            'product_id': equipment.product_id.id,
+                            'product_uom_qty': equipment.product_uom_qty})
+                    else:
+                        is_extra_product = self.env['civil.works.budget'].search(
+                            [('product_id', '=', self.product_id.id),('phase_id','=',data.phase_id.id)])
+                        if not is_extra_product:
+                            raise UserError(
+                                _("%s Added civil work is not available in phase please contact the project cordinator"%self.product_id.name))
+                        list_of_dicts.append({'product_id': self.product_id.id,
+                                              'product_uom_qty': vals.get('product_uom_qty')})
+        for civil in self.phase_id.civil_works_budget:
+            civil.write({'actual_hours': 0})
+        print("-=-=list_of_dicts", list_of_dicts)
+        for equipment in list_of_dicts:
+            civil_line_id = self.env['civil.works.budget'].search(
+                [('phase_id', '=', self.phase_id.id), ('product_id', '=', equipment.get('product_id'))])
+            civil_line_id.actual_hours += equipment.get('product_uom_qty')
+
+
+
+
+
     def show_mrs(self):
         return {
             'name': 'MRS',
@@ -380,7 +482,7 @@ class project_task(models.Model):
         equipment_list = []
         boq_line_list = []
         self.material_line_ids.unlink()
-        self.equipment_line_ids.unlink()
+        # self.equipment_line_ids.unlink()
         self.labour_line_ids.unlink()
         self.boq_line_ids.unlink()
         if self.phase_id.boq_line_ids:
@@ -409,18 +511,19 @@ class project_task(models.Model):
                     'uom_id': labour.uom_id.id,
 
                 }))
-        if self.phase_id.equipment_line_ids:
-            for equ in self.phase_id.equipment_line_ids:
-                equipment_list.append((0, 0, {
-                    'product_id': equ.product_id.id,
-                    'description': equ.description,
-                    'product_uom_qty': equ.product_uom_qty,
-                    'uom_id': equ.uom_id.id,
-
-                }))
-        self.write({'material_line_ids': material_list,
+        # if self.phase_id.equipment_line_ids:
+        #     for equ in self.phase_id.equipment_line_ids:
+        #         equipment_list.append((0, 0, {
+        #             'product_id': equ.product_id.id,
+        #             'description': equ.description,
+        #             'product_uom_qty': equ.product_uom_qty,
+        #             'uom_id': equ.uom_id.id,
+        #
+        #         }))
+        self.write({
+                    'material_line_ids': material_list,
                     'labour_line_ids': labour_list,
-                    'equipment_line_ids': equipment_list,
+                    # 'equipment_line_ids': equipment_list,
                     'boq_line_ids': boq_line_list
                     })
 
@@ -435,8 +538,8 @@ class project_task(models.Model):
             material_line.write({'product_uom_qty': 0})
         for labour_line in self.labour_line_ids:
             labour_line.write({'product_uom_qty': 0})
-        for equipment_line in self.equipment_line_ids:
-            equipment_line.write({'product_uom_qty': 0})
+        # for equipment_line in self.equipment_line_ids:
+        #     equipment_line.write({'product_uom_qty': 0})
         for pricelist in self.boq_line_ids:
             bom = self.env['mrp.bom'].search(
                 [('product_tmpl_id', '=', pricelist.product_id.id)])
@@ -446,8 +549,8 @@ class project_task(models.Model):
                         material_list.append(components)
                     if components.product_id.is_labour:
                         labour_list.append(components)
-                    if components.product_id.is_equipment:
-                        equipments_list.append(components)
+                    # if components.product_id.is_equipment:
+                    #     equipments_list.append(components)
 
             if len(material_list) >= 1:
                 for material in material_list:
@@ -466,14 +569,15 @@ class project_task(models.Model):
                         if labour not in new_labour_list:
                             old_labour_id.product_uom_qty += labour.product_qty * pricelist.product_uom_qty
                     new_labour_list.append(labour)
-            if len(equipments_list) >= 1:
-                for equipment in equipments_list:
-                    old_equipment_id = self.env['equipment.line.task'].search(
-                        [('product_id', '=', equipment.product_id.id), ('task_id', '=', self.id)])
-                    if old_equipment_id:
-                        if equipment not in new_equipments_list:
-                            old_equipment_id.product_uom_qty += equipment.product_qty * pricelist.product_uom_qty
-                    new_equipments_list.append(equipment)
+            # if len(equipments_list) >= 1:
+            #     for equipment in equipments_list:
+            #         old_equipment_id = self.env['equipment.line.task'].search(
+            #             [('product_id', '=', equipment.product_id.id), ('task_id', '=', self.id)])
+            #         if old_equipment_id:
+            #             if equipment not in new_equipments_list:
+            #                 old_equipment_id.product_uom_qty += equipment.product_qty * pricelist.product_uom_qty
+            #         new_equipments_list.append(equipment)
+
 
     def material_requisition(self):
         vals = []
@@ -527,13 +631,17 @@ class boq_details(models.Model):
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
 
 
+    def unlink(self):
+        return super(boq_details, self).unlink()
+
+
 class material_details(models.Model):
 
     _name = 'material.details.phase'
     _rec_name = 'product_id'
 
     phase_id = fields.Many2one('project.phase', string='Phase')
-    product_id = fields.Many2one('product.product', string='Product')
+    product_id = fields.Many2one('product.product', string='Product', domain=[('is_material','=',True)])
     description = fields.Char(string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
@@ -546,7 +654,7 @@ class labour_details(models.Model):
     _rec_name = 'product_id'
 
     phase_id = fields.Many2one('project.phase', string='Phase')
-    product_id = fields.Many2one('product.product', string='Product')
+    product_id = fields.Many2one('product.product', string='Product', domain=[('is_labour','=',True)])
     description = fields.Char(string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
@@ -558,7 +666,7 @@ class equipment_details(models.Model):
     _rec_name = 'product_id'
 
     phase_id = fields.Many2one('project.phase', string='Phase')
-    product_id = fields.Many2one('product.product', string='Product')
+    product_id = fields.Many2one('product.product', string='Product',domain=[('is_equipment','=',True)])
     description = fields.Char(string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
@@ -737,7 +845,7 @@ class material_line_task(models.Model):
     _name = 'material.task.line'
     _rec_name = 'product_id'
 
-    product_id = fields.Many2one('product.product', string='Product')
+    product_id = fields.Many2one('product.product', string='Product', domain=[('is_material','=',True)])
     description = fields.Char(string='Description')
     product_uom_qty = fields.Float('Required Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
@@ -766,7 +874,7 @@ class labour_line_task(models.Model):
     _name = 'labour.line.task'
     _rec_name = 'product_id'
 
-    product_id = fields.Many2one('product.product', string='Product')
+    product_id = fields.Many2one('product.product', string='Product', domain=[('is_labour','=',True)])
     description = fields.Char(string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
@@ -777,8 +885,81 @@ class equipment_line_task(models.Model):
     _name = 'equipment.line.task'
     _rec_name = 'product_id'
 
-    product_id = fields.Many2one('product.product', string='Product')
+    product_id = fields.Many2one('product.product', string='Product', domain=[('is_equipment','=',True)])
     description = fields.Char(string='Description')
-    product_uom_qty = fields.Float('Quantity')
+    product_uom_qty = fields.Float('Utilized Hrs')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
     task_id = fields.Many2one('project.task', string='Task')
+    unit_rate = fields.Float(related='product_id.standard_price', string="Unit Rate")
+    sr_no = fields.Integer("S. No.", compute="_sequence_ref", readonly=False)
+    date = fields.Date('Date of Utilization')
+
+    def copy_qty(self):
+        self.env['equipment.line.task'].create({
+            'product_id': self.product_id.id,
+            'product_uom_qty': self.product_uom_qty,
+            'uom_id': self.uom_id.id,
+            'task_id':self.task_id.id
+        })
+
+    def create(self, vals):
+        res = super(equipment_line_task, self).create(vals)
+        list_of_dicts = []
+        for data in self:
+            if self.task_id and self.task_id.phase_id:
+                task_ids = self.env['project.task'].search([('phase_id', '=', self.task_id.phase_id.id)])
+                for equipment in task_ids.mapped('equipment_line_ids'):
+
+                    if data.id != equipment.id:
+                        is_extra_product = self.env['civil.works.budget'].search([('product_id', '=', equipment.product_id.id),('phase_id','=',self.task_id.phase_id.id)])
+                        if not is_extra_product:
+                            raise UserError(_("%s Added civil work is not available in phase please contact project cordinator"%equipment.product_id.name))
+                        list_of_dicts.append({
+                            'product_id': equipment.product_id.id,
+                            'product_uom_qty': equipment.product_uom_qty})
+                    else:
+                        is_extra_product = self.env['civil.works.budget'].search([('product_id', '=', self.product_id.id),('phase_id','=',self.task_id.phase_id.id)])
+                        if not is_extra_product:
+                            raise UserError(
+                                _("%s Added civil work is not available in phase please the contact project cordinator"%self.product_id.name))
+                        list_of_dicts.append({'product_id': self.product_id.id,
+                                              'product_uom_qty': vals.get('product_uom_qty')})
+        for civil in self.task_id.phase_id.civil_works_budget:
+            civil.write({'actual_hours': 0})
+        for equipment in list_of_dicts:
+            civil_line_id = self.env['civil.works.budget'].search(
+                [('phase_id', '=', self.task_id.phase_id.id), ('product_id', '=', equipment.get('product_id'))])
+            civil_line_id.actual_hours += equipment.get('product_uom_qty')
+        return res
+
+
+    # def write(self, vals):
+    #     res = super(equipment_line_task, self).write(vals)
+    #     list_of_dicts = []
+    #     for data in self:
+    #         list_of_dicts = []
+    #         if self.task_id and self.task_id.phase_id:
+    #             task_ids = self.env['project.task'].search([('phase_id', '=', self.task_id.phase_id.id)])
+    #             for equipment in task_ids.mapped('equipment_line_ids'):
+    #                 if data.id != equipment.id:
+    #                     list_of_dicts.append({
+    #                         'product_id': equipment.product_id.id,
+    #                         'product_uom_qty': equipment.product_uom_qty})
+    #                 else:
+    #                     list_of_dicts.append({'product_id': self.product_id.id,
+    #                                           'product_uom_qty': vals.get('product_uom_qty')})
+    #     for civil in self.task_id.phase_id.civil_works_budget:
+    #         civil.write({'actual_hours': 0})
+    #     print("-=-=list_of_dicts",list_of_dicts)
+    #     for equipment in list_of_dicts:
+    #         civil_line_id = self.env['civil.works.budget'].search(
+    #             [('phase_id', '=', self.task_id.phase_id.id), ('product_id', '=', equipment.get('product_id'))])
+    #         civil_line_id.actual_hours += equipment.get('product_uom_qty')
+    #     return res
+
+
+    def _sequence_ref(self):
+        no = 0
+        for line in self:
+            no += 1
+            line.sr_no = no

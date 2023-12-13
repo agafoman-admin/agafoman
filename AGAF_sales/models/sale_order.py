@@ -292,10 +292,10 @@ class SaleOrder(models.Model):
             sheet.write_merge(row, row + 1, 2, 12, '', style6)
         row += 2
         sheet.write_merge(row, row+1, 0, 1, 'Prepared By:', style7)
-        sheet.write_merge(row, row+1, 2, 5, self.user_id.name, style6)
+        sheet.write_merge(row, row+1, 2, 5, self.create_uid.name, style6)
         sheet.write_merge(row, row+1, 6, 7, 'Approved By:', style7)
-        if self.sale_user_id.name:
-            sheet.write_merge(row, row+1, 8, 12, self.sale_user_id.name, style6)
+        if self.user_id.name:
+            sheet.write_merge(row, row+1, 8, 12, self.user_id.name, style6)
         else:
             sheet.write_merge(row, row + 1, 8, 12, '', style6)
 

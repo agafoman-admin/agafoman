@@ -10,7 +10,7 @@ class Product(models.Model):
 
     is_material = fields.Boolean("Material")
     is_labour = fields.Boolean("Labour")
-    is_equipment = fields.Boolean("Equipment")
+    is_equipment = fields.Boolean("Civil Works")
     is_boq = fields.Boolean("BOQ")
     
     

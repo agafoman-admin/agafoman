@@ -62,7 +62,6 @@
                                 </div>
                             </div>
 
-
                         </t>
                     </templates>
                 </kanban>
@@ -141,7 +140,7 @@
                             </group>
                         </group>
                         <notebook>
-                            <page name="boq_details" string="Boq Detalis">
+                            <page name="boq_details" string="Boq Details">
                                 <field name='boq_line_ids'
                                     attrs="{'readonly': [('checking', '=', True)]}">
                                     <tree editable='bottom'>
@@ -153,9 +152,9 @@
                                 </field>
                             </page>
                             <page name="material_details" string="Materials">
-                                <field name='material_line_ids' readonly='1'>
-                                    <tree edit='false'>
-                                        <field name='product_id' />
+                                <field name='material_line_ids' readonly='0'>
+                                    <tree editable='bottom'>
+                                        <field name='product_id' required="1"/>
                                         <field name='description' />
                                         <field name='product_uom_qty' />
                                         <field name='uom_id' />
@@ -166,9 +165,9 @@
 
 
                             <page name="labour_details" string="Labours">
-                                <field name='labour_line_ids' readonly='1'>
-                                    <tree edit='false'>
-                                        <field name='product_id' />
+                                <field name='labour_line_ids' readonly='0'>
+                                    <tree editable='bottom'>
+                                        <field name='product_id'  required="1"/>
                                         <field name='description' />
                                         <field name='product_uom_qty' />
                                         <field name='uom_id' />
@@ -176,23 +175,38 @@
                                 </field>
                             </page>
 
-                            <page name="equipment_details" string="Equipments">
-                                <field name='equipment_line_ids' readonly='1'>
-                                    <tree edit='false'>
-                                        <field name='product_id' />
+                            <page name="equipment_details" string="Civil Works" invisible="1">
+                                <field name='equipment_line_ids' readonly='0'>
+                                    <tree editable='bottom'>
+                                        <field name='product_id' required="1"/>
                                         <field name='description' />
                                         <field name='product_uom_qty' />
                                         <field name='uom_id' />
                                     </tree>
                                 </field>
                             </page>
-                            <page name="phase_budget" string="Phase Budget Management">
+                            <page name="phase_budget" string="Materials Budget">
                                 <group>
                                     <field name="project_cost"/>
                                     <field name="planned_material_cost"/>
                                     <field name="actual_material_cost"/>
                                     <field name="utilization_cost"/>
                                 </group>
+                            </page>
+                            <page name="civil_works_budget" string="Civil Works Budget">
+                                <field name='civil_works_budget'>
+                                    <tree editable="bottom">
+                                        <field name="sr_no" readonly="1"/>
+                                        <field name='product_id' required="1"/>
+                                        <field name='uom_id' />
+                                        <field name='unit_rate' readonly="1"/>
+                                        <field name='planned_hrs' />
+                                        <field name='actual_hours' readonly="1" force_save="1"/>
+                                        <field name='planned_budget' readonly="1" force_save="1"/>
+                                        <field name='actual_budget' readonly="1" force_save="1"/>
+                                        <field name='difference' readonly="1" force_save="1"/>
+                                    </tree>
+                                </field>
                             </page>
                         </notebook>
                     </sheet>
@@ -287,8 +301,8 @@
                         </field>
                     </page>
                     <page name='material_details' string='Material'>
-                        <field name='material_line_ids' readonly='1'>
-                            <tree>
+                        <field name='material_line_ids'>
+                            <tree editable="bottom">
                                 <field name='product_id' />
                                 <field name='description' />
                                 <field name='product_uom_qty' />
@@ -301,8 +315,8 @@
                     </page>
 
                     <page name='labour_details' string='Labour'>
-                        <field name='labour_line_ids' readonly='1'>
-                            <tree>
+                        <field name='labour_line_ids'>
+                            <tree editable="bottom">
                                 <field name='product_id' />
                                 <field name='description' />
                                 <field name='product_uom_qty' />
@@ -310,13 +324,17 @@
                             </tree>
                         </field>
                     </page>
-                    <page name='equipment_details' string='Equipment'>
-                        <field name='equipment_line_ids' readonly='1'>
-                            <tree>
-                                <field name='product_id' />
-                                <field name='description' />
+                    <page name='equipment_details' string='Civil Works'>
+
+                        <field name='equipment_line_ids'>
+                            <tree editable="bottom">
+                                <field name="sr_no"  force_save="1" readonly="1"/>
+                                <field name='product_id' readonly="0" force_save="1"/>
+                                <field name='uom_id' readonly="1" force_save="1"/>
                                 <field name='product_uom_qty' />
-                                <field name='uom_id' />
+                                <field name='date' />
+                                <field name="unit_rate"  invisible="1" readonly="1" force_save="1"/>
+                                <button name="copy_qty" type="object" class="btn-link d-block" string="Copy" icon="fa-copy"/>
                             </tree>
                         </field>
                     </page>
