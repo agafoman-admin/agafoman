@@ -23,7 +23,7 @@ class SOBOQMaterialDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_material', '=', True)]",
         )
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name", string='Description')
     product_uom_qty = fields.Float("Quantity")
     fixed_price_unit = fields.Float( string="Unit Price")
     price_unit = fields.Float( string="Unit Price")
@@ -36,6 +36,14 @@ class SOBOQMaterialDetails(models.Model):
     margin_pr = fields.Float("Margin(%)")
     enquiry_type = fields.Selection(related="order_id.enquiry_type", string="Enquiry Type")
 
+    @api.depends('product_tmpl_id')
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
+
 
 class SOBOQLabourDetails(models.Model):
     _name = 'so.boq.labour.details'
@@ -46,7 +54,7 @@ class SOBOQLabourDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_labour', '=', True)]",
         )
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name", string='Description')
     product_uom_qty = fields.Float("Quantity")
     price_unit = fields.Float( string="Unit Price")
     fixed_price_unit = fields.Float(string="Unit Price")
@@ -59,6 +67,14 @@ class SOBOQLabourDetails(models.Model):
     margin_pr = fields.Float("Margin(%)")
     enquiry_type = fields.Selection(related="order_id.enquiry_type", string="Enquiry Type")
 
+    @api.depends('product_tmpl_id')
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
+
 
 class SOBOQEquipmentDetails(models.Model):
     _name = 'so.boq.equipment.details'
@@ -69,7 +85,7 @@ class SOBOQEquipmentDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_labour', '=', True)]",
         )
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name", string='Description')
     product_uom_qty = fields.Float("Quantity")
     price_unit = fields.Float( string="Unit Price")
     fixed_price_unit = fields.Float(string="Unit Price")
@@ -81,6 +97,14 @@ class SOBOQEquipmentDetails(models.Model):
     order_id = fields.Many2one('sale.order',string="Order")
     margin_pr = fields.Float("Margin(%)")
     enquiry_type = fields.Selection(related="order_id.enquiry_type", string="Enquiry Type")
+
+    @api.depends('product_tmpl_id')
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
 
 
 class SaleOrder(models.Model):

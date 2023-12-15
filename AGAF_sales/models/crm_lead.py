@@ -82,7 +82,7 @@ class EstimatedBOQDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_boq', '=', True)]",
         help="Specify a template if this rule only applies to one product template. Keep empty otherwise.")
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name", string="Description")
     product_uom_qty = fields.Float("Quantity")
     price_unit = fields.Float( string="Unit Price")
     fixed_price_unit = fields.Float(string=" Fixed Unit Price")
@@ -104,6 +104,14 @@ class EstimatedBOQDetails(models.Model):
         currency_field='currency_id',)
     price_tax = fields.Float("Tax", compute='_compute_amount_all', store=True)
     price_total = fields.Monetary(compute='_compute_amount_all', string='Total', store=True)
+    
+    @api.depends('product_tmpl_id')
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
 
     def _convert_to_tax_base_line_dict(self):
         self.ensure_one()
@@ -160,7 +168,7 @@ class EstimatedBOQMaterialDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_material', '=', True)]",
         )
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name", string='Description')
     product_uom_qty = fields.Float("Quantity")
     fixed_price_unit = fields.Float( string="Unit Price")
     price_unit = fields.Float( string="Unit Price")
@@ -170,6 +178,14 @@ class EstimatedBOQMaterialDetails(models.Model):
     lead_id = fields.Many2one("crm.lead", string="Lead")
     estimate_id = fields.Many2one("estimation.works", string="Estimation")
     margin_pr = fields.Float("Margin(%)")
+
+    @api.depends('product_tmpl_id')
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
 
 
 class EstimatedBOQLabourDetails(models.Model):
@@ -181,7 +197,7 @@ class EstimatedBOQLabourDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_labour', '=', True)]",
         )
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name", string='Description')
     product_uom_qty = fields.Float("Quantity")
     price_unit = fields.Float( string="Unit Price")
     fixed_price_unit = fields.Float(string="Unit Price")
@@ -191,6 +207,14 @@ class EstimatedBOQLabourDetails(models.Model):
     lead_id = fields.Many2one("crm.lead", string="Lead")
     estimate_id = fields.Many2one("estimation.works", string="Estimation")
     margin_pr = fields.Float("Margin(%)")
+
+    @api.depends('product_tmpl_id')
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
 
 
 class EstimatedBOQEquipmentDetails(models.Model):
@@ -202,7 +226,7 @@ class EstimatedBOQEquipmentDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_labour', '=', True)]",
         )
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name", string='Description')
     product_uom_qty = fields.Float("Quantity")
     price_unit = fields.Float( string="Unit Price")
     fixed_price_unit = fields.Float(string="Unit Price")
@@ -212,6 +236,14 @@ class EstimatedBOQEquipmentDetails(models.Model):
     lead_id = fields.Many2one("crm.lead", string="Lead")
     estimate_id = fields.Many2one("estimation.works", string="Estimation")
     margin_pr = fields.Float("Margin(%)")
+
+    @api.depends('product_tmpl_id')
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
 
 
 
@@ -224,7 +256,7 @@ class BOQDetails(models.Model):
         ondelete='cascade', check_company=True,
         domain="[('is_boq', '=', True)]",
         help="Specify a template if this rule only applies to one product template. Keep empty otherwise.")
-    description = fields.Text(related="product_tmpl_id.description_sale", string="Description")
+    description = fields.Text(compute="set_name",string="Description")
     product_uom_qty = fields.Float("Quantity", default=1)
     price_unit = fields.Float( string="Unit Price")
     uom_id = fields.Many2one(related="product_tmpl_id.uom_id", string="UoM")
@@ -232,6 +264,13 @@ class BOQDetails(models.Model):
     total = fields.Float("Total")
     lead_id = fields.Many2one("crm.lead", string="Lead")
     estimate_id = fields.Many2one("estimation.works", string="Estimation")
+
+    def set_name(self):
+        for data in self:
+            if data.product_tmpl_id.description_sale:
+                data.description = data.product_tmpl_id.description_sale
+            else:
+                data.description = data.product_tmpl_id.name
 
 
     @api.depends('product_uom_qty','price_unit','product_tmpl_id')

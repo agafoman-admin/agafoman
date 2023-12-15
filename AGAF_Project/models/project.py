@@ -311,7 +311,7 @@ class project_inherit(models.Model):
     project_cost = fields.Float(related="project_rate", string="Project Cost")
     planned_material_cost = fields.Float(string="Planned Material Cost", compute="set_planned_material_cost")
     actual_material_cost = fields.Float("Actual Material Cost", compute="set_actual_material_cost")
-    utilization_cost = fields.Float("Utilization Cost", compute="set_utilization_cost")
+    utilization_cost = fields.Float("Difference", compute="set_utilization_cost")
 
 
     @api.depends('planned_material_cost','actual_material_cost')
@@ -626,9 +626,17 @@ class boq_details(models.Model):
 
     phase_id = fields.Many2one('project.phase', string='Phase')
     product_id = fields.Many2one('product.template', string='Product')
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
 
     def unlink(self):
@@ -642,10 +650,18 @@ class material_details(models.Model):
 
     phase_id = fields.Many2one('project.phase', string='Phase')
     product_id = fields.Many2one('product.product', string='Product', domain=[('is_material','=',True)])
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name",string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
-    price_unit = fields.Float(string="Unit Price")
+    price_unit = fields.Float(related="product_id.standard_price")
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
 
 class labour_details(models.Model):
@@ -655,9 +671,17 @@ class labour_details(models.Model):
 
     phase_id = fields.Many2one('project.phase', string='Phase')
     product_id = fields.Many2one('product.product', string='Product', domain=[('is_labour','=',True)])
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
 
 class equipment_details(models.Model):
@@ -667,9 +691,17 @@ class equipment_details(models.Model):
 
     phase_id = fields.Many2one('project.phase', string='Phase')
     product_id = fields.Many2one('product.product', string='Product',domain=[('is_equipment','=',True)])
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
 
 class picking_management(models.Model):
@@ -817,7 +849,7 @@ class picking_management_line(models.Model):
     _rec_name = 'product_id'
 
     product_id = fields.Many2one('product.product', string='Product')
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
     picking_id = fields.Many2one('picking.management', 'Picking')
     expected_qty = fields.Float(string='Required quantity')
@@ -829,16 +861,32 @@ class picking_management_line(models.Model):
     prev_onhand = fields.Float(string='Prev Onhand')
     current_qty = fields.Float(string='current qty')
 
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
+
 
 class boq_line_task(models.Model):
     _name = 'boq.task.line'
     _rec_name = 'product_id'
 
     product_id = fields.Many2one('product.template', string='Product')
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
     task_id = fields.Many2one('project.task', string='Task')
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
 
 class material_line_task(models.Model):
@@ -846,13 +894,21 @@ class material_line_task(models.Model):
     _rec_name = 'product_id'
 
     product_id = fields.Many2one('product.product', string='Product', domain=[('is_material','=',True)])
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Required Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
     task_id = fields.Many2one('project.task', string='Task')
-    price_unit = fields.Float("Price Unit")
+    price_unit = fields.Float(related="product_id.standard_price")
     allocated_qty = fields.Float("Allocated Quantity", compute="set_allocated_qty_from_miv")
     pending_qty = fields.Float("Pending Quantity")
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
     def set_allocated_qty_from_miv(self):
         voucher_ids  = self.env['material.issue.voucher'].search([('task_id','=',self.task_id.id),('state','=','approved')])
@@ -875,10 +931,18 @@ class labour_line_task(models.Model):
     _rec_name = 'product_id'
 
     product_id = fields.Many2one('product.product', string='Product', domain=[('is_labour','=',True)])
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
     task_id = fields.Many2one('project.task', string='Task')
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
 
 class equipment_line_task(models.Model):
@@ -886,13 +950,21 @@ class equipment_line_task(models.Model):
     _rec_name = 'product_id'
 
     product_id = fields.Many2one('product.product', string='Product', domain=[('is_equipment','=',True)])
-    description = fields.Char(string='Description')
+    description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Utilized Hrs')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
     task_id = fields.Many2one('project.task', string='Task')
     unit_rate = fields.Float(related='product_id.standard_price', string="Unit Rate")
     sr_no = fields.Integer("S. No.", compute="_sequence_ref", readonly=False)
     date = fields.Date('Date of Utilization')
+
+    @api.depends('product_id')
+    def set_name(self):
+        for data in self:
+            if data.product_id.description_sale:
+                data.description = data.product_id.description_sale
+            else:
+                data.description = data.product_id.name
 
     def copy_qty(self):
         self.env['equipment.line.task'].create({

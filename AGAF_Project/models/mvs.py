@@ -175,7 +175,7 @@ class MaterialIssueVoucherLine(models.Model):
     product_id = fields.Many2one('product.product', string="Name")
     product_qty = fields.Float("Requested Qty")
     allocated_qty = fields.Float("Allocated Qty")
-    rate = fields.Float(string="Rate")
+    rate = fields.Float(related="product_id.standard_price",string="Rate")
     amount = fields.Float("Amount")
     uom_id = fields.Many2one('uom.uom', string='UOM')
     sr_no = fields.Integer("S. No.", compute="_sequence_ref")

@@ -4,8 +4,7 @@
         <record id="agaf_email_template_edi_sale" model="mail.template">
             <field name="name">AGAF Sales: Send Quotation</field>
             <field name="model_id" ref="sale.model_sale_order"/>
-            <field name="subject">{{ object.company_id.name }} {{ object.state in ('draft', 'sent') and
-                (ctx.get('proforma') and 'Proforma' or 'Quotation') or 'Order' }} (Ref {{ object.name or 'n/a' }})
+            <field name="subject">{{ object.company_id.name }} (Ref {{ object.name or 'n/a' }})
             </field>
             <field name="email_from">{{ (object.user_id.email_formatted or object.company_id.email_formatted or
                 user.email_formatted) }}
