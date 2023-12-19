@@ -207,7 +207,7 @@ class project_phase_task(models.Model):
 
                     if old_product_id:
                         if material not in new_material_list:
-                            old_product_id.product_uom_qty += material.product_uom_qty * pricelist.product_uom_qty
+                            old_product_id.product_uom_qty += material.product_qty * pricelist.product_uom_qty
                     else:
                         if material not in new_material_list:
                             self.write({'material_line_ids': [(0, 0, {
