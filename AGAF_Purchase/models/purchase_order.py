@@ -12,7 +12,7 @@ class PurchaseOrder_inherit(models.Model):
 
     _inherit = 'purchase.order'
 
-    comparison_refs = fields.Many2one('vendor.comparison.number',string='Comparison Reference No.',required=True)
+    comparison_refs = fields.Many2one('vendor.comparison.number',string='Comparison Reference No.',required=False)
 
 
     # @api.depends("name", "comparison_ref")

@@ -33,6 +33,13 @@ class MaterialIssueVoucher(models.Model):
     task_id = fields.Many2one(related="mrs_no.task_id", string="Task")
     phase_id = fields.Many2one(related="task_id.phase_id", string="Phase")
 
+    # @api.onchange('location_id')
+    # @api.depends('location_id')
+    # def check_available_qty(self):
+    #     print("0-0--=-=-=-=",self._origin.location_id.name, self.location_id.name)
+    #
+    #     return
+
     @api.model
     def create(self, vals):
         vals['name'] = self.env['ir.sequence'].next_by_code('material.issue.voucher')
@@ -47,9 +54,16 @@ class MaterialIssueVoucher(models.Model):
         material_estimate_obj = project_task_obj.slip_line_ids
 
         for line in material_estimate_obj:
+            if vals.get('location_id'):
+                stock_quant = self.env['stock.quant'].search([('product_id', '=',line.product_id.id),('location_id','=',vals.get('location_id'))])
+                if stock_quant:
+                    qty = stock_quant.quantity
+                else:
+                    qty = 0
             list.append((0, 0, {
                 'product_id': line.product_id.id,
                 'product_qty': line.product_qty,
+                'available_qty': qty,
                 'allocated_qty': 0,
                 'uom_id': line.uom_id.id,
                 'rate':line.rate,
@@ -80,6 +94,16 @@ class MaterialIssueVoucher(models.Model):
                     'rate':line.price_unit,
                 }))
             self.update({'slip_line_ids':test})
+        if vals.get('location_id'):
+            for data in self.slip_line_ids:
+                stock_quant = self.env['stock.quant'].search(
+                    [('product_id', '=', data.product_id.id), ('location_id', '=', vals.get('location_id'))])
+                if stock_quant:
+                    qty = stock_quant.quantity
+                else:
+                    qty = 0
+                self.write({'slip_line_ids': [(1, data.id, {'available_qty': qty,'allocated_qty': 0})]})
+
 
 
     def action_rejected(self):
@@ -100,9 +124,8 @@ class MaterialIssueVoucher(models.Model):
         }
 
     def action_waiting_for_approval(self):
-        self.state = 'waiting_for_approval'
         for rec in self.slip_line_ids:
-            if rec.allocated_qty == 0:
+            if rec.allocated_qty == 0 or rec.allocated_qty > rec.product_qty:
                 raise UserError(_("Please Enter Valid Allocated Qty"))
             available_stock_quant = self.env['stock.quant'].search(
                 [('product_id', '=', rec.product_id.id), ('quantity', '>=', rec.allocated_qty),
@@ -110,6 +133,7 @@ class MaterialIssueVoucher(models.Model):
             if not available_stock_quant:
                 raise UserError(_("%s Product Stock is not available on %s Location." % (
                     rec.product_id.name, self.location_id.name)))
+        self.state = 'waiting_for_approval'
         self.write({'trail_ids':[(0, 0, {
             'date': datetime.now(),
             'author_id': self.env.user.id,
@@ -117,6 +141,7 @@ class MaterialIssueVoucher(models.Model):
             'remark': "Updated By   " + self.env.user.name})],
             'requested_by': self.env.user.id,
             })
+
 
     def action_approved(self):
         self.state = 'approved'
@@ -180,6 +205,11 @@ class MaterialIssueVoucherLine(models.Model):
     uom_id = fields.Many2one('uom.uom', string='UOM')
     sr_no = fields.Integer("S. No.", compute="_sequence_ref")
     remark = fields.Text("Remarks")
+    available_qty = fields.Float("Available Qty")
+
+
+
+
 
     def _sequence_ref(self):
         no = 0

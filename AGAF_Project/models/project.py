@@ -73,8 +73,8 @@ class project_phase_task(models.Model):
             return {
                 'name': "Project Task",
                         'type': 'ir.actions.act_window',
-                        'view_type': 'tree,form',
-                        'view_mode': 'tree,form',
+                        'view_type': 'tree,form,kanban',
+                        'view_mode': 'tree,form,kanban',
                         'res_model': 'project.task',
                         'domain': [('phase_id', '=', self._origin.id)],
                         'context': "{'create': False}"
@@ -114,11 +114,29 @@ class project_phase_task(models.Model):
     def button_applicant_backend(self):
         return {
             'name': 'Project Task',
-            'view_mode': 'tree,form',
+            'view_mode': 'tree,form,kanban',
             'res_model': 'project.task',
             'type': 'ir.actions.act_window',
             'domain': [('phase_id', '=', self._origin.id)]}
     position_filled_count = fields.Integer(compute="_compute_applicant_count")
+
+    def button_open_po(self):
+
+        # print("-=-=boq_line_id",boq_line_id)
+        return {
+            'name': 'Purchase Order',
+            'view_mode': 'tree,form',
+            'res_model': 'purchase.order',
+            'type': 'ir.actions.act_window',
+            'domain': [('phase_id', '=', self._origin.id),('project_id','=',self.project_id.id)]}
+
+    po_count = fields.Integer(compute="_compute_po_count")
+
+    def _compute_po_count(self):
+        for res in self:
+            total_len = len(self.env['purchase.order'].search(
+                [('phase_id', '=', res._origin.id),('project_id','=',res.project_id.id)]))
+            res.po_count = total_len
 
     def _compute_applicant_count(self):
         for res in self:
@@ -228,7 +246,7 @@ class project_phase_task(models.Model):
                             self.write({'labour_line_ids': [(0, 0, {
                             'product_id': labour.product_id.id,
                             'product_uom_qty': labour.product_qty* pricelist.product_uom_qty,
-                            'uom_id': material.product_id.uom_id.id,
+                            'uom_id': labour.product_id.uom_id.id,
                             })]})
                     new_labour_list.append(labour)
             if len(equipments_list) >= 1:
@@ -237,15 +255,57 @@ class project_phase_task(models.Model):
                         [('product_id', '=', equipment.product_id.id), ('phase_id', '=', self.id)])
                     if old_equipment_id:
                         if equipment not in new_equipments_list:
-                            old_equipment_id.product_uom_qty += material.product_qty * pricelist.product_uom_qty
+                            old_equipment_id.product_uom_qty += equipment.product_qty * pricelist.product_uom_qty
                     else:
                         if equipment not in new_equipments_list:
                             self.write({'equipment_line_ids': [(0, 0, {
                                 'product_id': equipment.product_id.id,
                                 'product_uom_qty': equipment.product_qty * pricelist.product_uom_qty,
-                                 'uom_id': material.product_id.uom_id.id,
+                                 'uom_id': equipment.product_id.uom_id.id,
                             })]})
                     new_equipments_list.append(equipment)
+
+    # def subcontract_po(self):
+    #     list =[]
+    #     boq_line_id = self.env['boq.details.phase'].search([('phase_id', '=', self.id), ('is_po', '=', True), ('is_already_po', '=', False)])
+    #     if boq_line_id:
+    #         for boq in boq_line_id:
+    #             list.append((0, 0, {
+    #                 'product_id': boq.product_id.id,
+    #                 'product_qty': boq.product_uom_qty,
+    #             }))
+    #             boq_line_id.is_already_po = True
+    #         po_id = self.env['purchase.order'].create({
+    #             'phase_id': self.id,
+    #             'project_id': self.project_id.id,
+    #             'partner_id': self.partner_id.id,
+    #             'is_subcontracting_po':True,
+    #             'order_line': list,
+    #         })
+    #         return {
+    #             'effect': {
+    #                 'fadeout': 'slow',
+    #                 'message': 'Purchase Order Created',
+    #                 'type': 'rainbow_man',
+    #             }
+    #         }
+    #     else:
+    #         raise UserError(_("Purchase Order is already created."))
+
+    def action_open_wizard(self):
+        boq_line_id = self.env['boq.details.phase'].search(
+            [('phase_id', '=', self.id), ('is_po', '=', True), ('is_already_po', '=', False)])
+        return {
+            'name': 'Subcontractor',
+            'type': 'ir.actions.act_window',
+            'res_model': 'agaf.po_wizard',
+            'view_mode': 'form',
+            'context': {'default_boq_line_ids': boq_line_id.ids},
+            'view_id': self.env.ref('AGAF_Project.view_my_wizard_form').id,
+            'target': 'new',
+    }
+
+
 
 
     def generate_picking(self):
@@ -581,27 +641,31 @@ class project_task(models.Model):
 
     def material_requisition(self):
         vals = []
+        list_zero = []
+        list_zero_allocated = []
         miv_ids = self.env['material.issue.voucher'].search([('task_id','=',self.id),('state','=','approved')])
         for line in self.material_line_ids:
-            if line.allocated_qty >= line.product_uom_qty and len(vals) == 0:
-                raise UserError(_("Pending value is 0 or less. MRS creation failed."))
+            list_zero.append(line.pending_qty)
+            list_zero_allocated.append(line.allocated_qty)
+        if set(list_zero) == {0} and len(list_zero) > 0 and set(list_zero_allocated) != {0}:
+            raise UserError(_("Pending value is 0 or less. MRS creation failed."))
+        for line in self.material_line_ids:
+            if self.mrs_count > 0 and miv_ids:
+                if line.pending_qty > 0:
+                    vals.append((0, 0, {
+                        'product_id': line.product_id.id,
+                        'product_qty': line.pending_qty,
+                        'uom_id': line.product_id.uom_id.id,
+                        'rate': line.price_unit,
+                    }))
             else:
-                if self.mrs_count > 0 and miv_ids:
-                        if line.pending_qty > 0:
-                            vals.append((0, 0, {
-                                'product_id': line.product_id.id,
-                                'product_qty': line.pending_qty,
-                                'uom_id': line.product_id.uom_id.id,
-                                'rate': line.price_unit,
-                            }))
-                else:
-                        if line.product_uom_qty:
-                            vals.append((0, 0, {
-                                'product_id': line.product_id.id,
-                                'product_qty': line.product_uom_qty,
-                                'uom_id': line.product_id.uom_id.id,
-                                'rate': line.price_unit,
-                            }))
+                if line.product_uom_qty:
+                    vals.append((0, 0, {
+                        'product_id': line.product_id.id,
+                        'product_qty': line.product_uom_qty,
+                        'uom_id': line.product_id.uom_id.id,
+                        'rate': line.price_unit,
+                    }))
 
 
         return {
@@ -629,6 +693,9 @@ class boq_details(models.Model):
     description = fields.Char(compute="set_name", string='Description')
     product_uom_qty = fields.Float('Quantity')
     uom_id = fields.Many2one(related="product_id.uom_id", string="UoM")
+    is_po = fields.Boolean("PO")
+    is_already_po = fields.Boolean("Already PO")
+
 
     @api.depends('product_id')
     def set_name(self):

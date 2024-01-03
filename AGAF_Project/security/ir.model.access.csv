@@ -21,3 +21,4 @@ access_transfer_audit_trail,access_transfer_audit_trail,model_transfer_audit_tra
 access_slip_reject_reason_wizard,access_slip_reject_reason_wizard,model_slip_reject_reason_wizard,,1,1,1,1
 access_transfer_reject_reason_wizard,access_transfer_reject_reason_wizard,model_transfer_reject_reason_wizard,,1,1,1,1
 access_civil_works_budget,access_civil_works_budget,model_civil_works_budget,,1,1,1,1
+access_agaf_po_wizard,access_agaf_po_wizard,model_agaf_po_wizard,,1,1,1,1

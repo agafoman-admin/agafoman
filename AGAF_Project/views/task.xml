@@ -1,0 +1,14 @@
+<odoo>
+    <data>
+        <record id="custom_action_view_all_task" model="ir.actions.act_window">
+            <field name="res_model">project.task</field>
+            <field name="view_mode">kanban,tree,form,gantt,calendar,map,pivot,graph,activity</field>
+        </record>
+        <menuitem
+            id="custom_task_menu"
+            name="Task"
+            parent="project.menu_main_pm"
+            action="custom_action_view_all_task"
+            />
+    </data>
+</odoo>

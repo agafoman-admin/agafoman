@@ -79,6 +79,8 @@
                             class='oe_highlight' />
                         <button name='generate_picking' type='object' string='Generate Picking'
                             class='oe_highlight' attrs="{'invisible': [('checking', '=', True)]}" />
+                        <button name='action_open_wizard' type='object' string='Subcontract PO'
+                            class='oe_highlight' />
                     </header>
                     <sheet>
 
@@ -87,6 +89,11 @@
                                 name="button_applicant_backend"
                                 icon="fa-tasks">
                                 <field string="Tasks" name="position_filled_count" widget="statinfo" />
+                            </button>
+                            <button class="oe_stat_button" type="object"
+                                name="button_open_po"
+                                icon="fa-align-justify">
+                                <field string="Subcontract PO" name="po_count" widget="statinfo" />
                             </button>
                         </div>
 
@@ -143,7 +150,9 @@
                             <page name="boq_details" string="Boq Details">
                                 <field name='boq_line_ids'
                                     attrs="{'readonly': [('checking', '=', True)]}">
-                                    <tree editable='bottom'>
+                                    <tree editable="bottom">
+                                        <field name="is_po" attrs="{'readonly': [('is_already_po', '=', True)]}"/>
+                                        <field name="is_already_po" invisible="1"/>
                                         <field name='product_id' />
                                         <field name='description' />
                                         <field name='product_uom_qty' />

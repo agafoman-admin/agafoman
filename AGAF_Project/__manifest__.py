@@ -25,6 +25,8 @@
         'views/reject_reason.xml',
         'views/stock_location.xml',
         'views/consolidate.xml',
+        'views/purchase_order.xml',
+        'views/task.xml',
     ],
  
     'installable': True,
