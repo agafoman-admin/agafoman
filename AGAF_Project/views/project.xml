@@ -41,11 +41,11 @@
             <field name="name">project.phase.kanban</field>
             <field name="model">project.phase</field>
             <field name="arch" type="xml">
-                <kanban class="o_res_partner_kanban" default_group_by="stage_id"
+                <kanban class="o_res_partner_kanban"
                     quick_create="false" group_create="false">
                     <field name="id" />
                     <field name="name" />
-                    <field name="stage_id" />
+
                     <field name="project_id" />
                     <templates>
                         <t t-name="kanban-box">
@@ -73,8 +73,6 @@
             <field name="arch" type="xml">
                 <form string="form">
                     <header>
-                        <field name="stage_id" widget="statusbar"
-                            options="{'clickable': '1', 'fold_field': 'fold'}" />
                         <button name='phase_create_task' type='object' string='Create task'
                             class='oe_highlight' />
                         <button name='generate_picking' type='object' string='Generate Picking'
@@ -355,39 +353,6 @@
 
             </field>
         </record>
-
-
-        <record id="dynamic_stages_form_view" model="ir.ui.view">
-            <field name="name">dynamic.stages.form</field>
-            <field name="model">dynamic.stages</field>
-            <field name="arch" type="xml">
-                <form string="form">
-                    <sheet>
-                        <group>
-                            <group>
-                                <field name='name' />
-                                <field name='sequence' />
-                                <field name='fold' />
-                                <field name='project_id' />
-
-                            </group>
-                        </group>
-                    </sheet>
-                </form>
-            </field>
-        </record>
-
-        <record id="phase_stage_value_action" model="ir.actions.act_window">
-            <field name="name">Stage</field>
-            <field name="type">ir.actions.act_window</field>
-            <field name="res_model">dynamic.stages</field>
-            <field name="view_mode">tree,form</field>
-        </record>
-
-        <menuitem name="Phase Stage"
-            id="project_phase_stages"
-            parent="project.menu_project_config"
-            action="phase_stage_value_action" />
 
 
         <record id="picking_management_form_view" model="ir.ui.view">

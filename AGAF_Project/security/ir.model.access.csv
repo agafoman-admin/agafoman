@@ -1,6 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_project_phase,project_phase,model_project_phase,,1,1,1,1
-access_dynamic_stages,access_dynamic_stages,model_dynamic_stages,,1,1,1,1
 access_boq_details_phase,access_boq_details_phase,model_boq_details_phase,,1,1,1,1
 access_material_details_phase,access_material_details_phase,model_material_details_phase,,1,1,1,1
 access_labour_details_phase,access_labour_details_phase,model_labour_details_phase,,1,1,1,1

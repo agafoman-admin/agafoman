@@ -64,13 +64,6 @@ class project_phase_task(models.Model):
              total += data.price_unit * data.product_uom_qty
         self.planned_material_cost = total
 
-    @api.model
-    def _read_group_stage_ids(self, stages, domain, order):
-        stage_ids = self.env['dynamic.stages'].search([])
-        return stage_ids
-
-    stage_id = fields.Many2one(
-        'dynamic.stages', string="State", group_expand='_read_group_stage_ids')
 
     def button_purchase(self):
         project_task_id = self.env['project.task'].search(
@@ -467,14 +460,6 @@ class project_inherit(models.Model):
 
         pass
 
-
-class Dynamicstages(models.Model):
-    _name = 'dynamic.stages'
-    _rec_name = 'name'
-    name = fields.Char(string='Name')
-    sequence = fields.Integer(string='Sequence')
-    fold = fields.Boolean(string='Folded in Kanban')
-    project_id = fields.Many2one('project.project', string='Project')
 
 
 class project_task(models.Model):
