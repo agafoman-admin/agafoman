@@ -22,3 +22,6 @@ access_slip_reject_reason_wizard,access_slip_reject_reason_wizard,model_slip_rej
 access_transfer_reject_reason_wizard,access_transfer_reject_reason_wizard,model_transfer_reject_reason_wizard,,1,1,1,1
 access_civil_works_budget,access_civil_works_budget,model_civil_works_budget,,1,1,1,1
 access_agaf_po_wizard,access_agaf_po_wizard,model_agaf_po_wizard,,1,1,1,1
+access_phase_stage,access_phase_stage,model_phase_stage,,1,1,1,1
+access_phase_stage_template,access_phase_stage_template,model_phase_stage_template,,1,1,1,1
+

@@ -53,7 +53,13 @@
                                 <t t-foreach="docs.material_line_ids" t-as="o">
                                     <tr t-if="o.picking_quntity >0">
                                         <td>
-                                            <span t-field="o.product_id.name"></span>
+                                            <t t-if="o.product_id.default_code">
+                                                [<span t-field="o.product_id.default_code"/>]<span t-field="o.product_id.name"></span>
+                                            </t>
+                                            <t t-else="">
+                                                <span t-field="o.product_id.name"></span>
+                                            </t>
+
                                         </td>
                                         <td>
                                             <span t-field="o.picking_quntity"></span>

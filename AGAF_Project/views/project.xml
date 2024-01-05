@@ -81,6 +81,8 @@
                             class='oe_highlight' attrs="{'invisible': [('checking', '=', True)]}" />
                         <button name='action_open_wizard' type='object' string='Subcontract PO'
                             class='oe_highlight' />
+                        <field name="state_id" widget="statusbar" class="o_field_statusbar"
+                        options="{'clickable': '1'}"/>
                     </header>
                     <sheet>
 
@@ -115,6 +117,8 @@
                                 <field name='assignees'
                                     attrs="{'readonly': [('checking', '=', True)]}" />
                                 <field name='sale_id' readonly='1' />
+                                <field name="template_id"/>
+                                <field name="stage_ids" widget="many2many_tags"/>
                             </group>
                             <group>
                                 <field name='partner_id'

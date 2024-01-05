@@ -21,10 +21,12 @@ class MyWizard(models.TransientModel):
         phase_id = self.env['project.phase'].browse(self.env.context.get('active_ids'))
         boq_line_id = self.env['boq.details.phase'].browse(self.env.context.get('default_boq_line_ids'))
         if boq_line_id:
+            my_dict = {phase_id.project_id.analytic_account_id.id: 100.0}
             for boq in boq_line_id:
                 list.append((0, 0, {
                     'product_id': boq.product_id.id,
                     'product_qty': boq.product_uom_qty,
+                    'analytic_distribution':my_dict,
                 }))
                 boq_line_id.is_already_po = True
             po_id = self.env['purchase.order'].create({

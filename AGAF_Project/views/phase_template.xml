@@ -1,0 +1,52 @@
+<odoo>
+    <data>
+        <record id="phase_stage_template_form" model="ir.ui.view">
+            <field name="name">phase.stage.template.form</field>
+            <field name="model">phase.stage.template</field>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <form string="Phase Stage">
+                    <sheet>
+                        <group>
+                            <group>
+                                <field name="name" required="1"/>
+                                <field name="stage_ids" required="1" widget="many2many_tags"/>
+                            </group>
+                            <group>
+                                <field name="description"/>
+                            </group>
+                        </group>
+                        <group>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        <record id="phase_stage_template_tree" model="ir.ui.view">
+            <field name="name">phase.stage.template.form</field>
+            <field name="model">phase.stage.template</field>
+            <field name="priority" eval="1"/>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="stage_ids" widget="many2many_tags"/>
+                </tree>
+            </field>
+        </record>
+
+        <record model="ir.actions.act_window" id="phase_stage_template_action">
+            <field name="name">Phase Template</field>
+            <field name="res_model">phase.stage.template</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="view_mode">tree,form</field>
+        </record>
+
+        <menuitem
+                id="phase_stage_template_menu"
+                name="Phase Template"
+                parent="project.menu_project_config"
+                action="phase_stage_template_action"
+        />
+    </data>
+</odoo>

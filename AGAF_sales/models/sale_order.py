@@ -397,6 +397,7 @@ class SaleOrder(models.Model):
         project_id = self.env['project.project'].sudo().create(
             {'name': sequence, 'analytic_account_id': acc_id.id, 'order_id': self.id, 'project_rate': self.amount_total,
              'company_id': self.company_id.id, 'partner_id':self.partner_id.id})
+        self.analytic_account_id = acc_id.id
         self.visible_project = True
         self.new_project_id = project_id
         self.sale_user_id = self.env.uid

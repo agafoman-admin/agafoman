@@ -31,6 +31,17 @@ class project_phase_task(models.Model):
     actual_material_cost = fields.Float("Actual Material Cost", compute="set_actual_material_cost")
     utilization_cost = fields.Float("Difference", compute="set_utilization_cost")
     civil_works_budget = fields.One2many('civil.works.budget','phase_id', string="Civil Works")
+    template_id = fields.Many2one('phase.stage.template',string="Phase Template", required=1)
+    stage_ids = fields.Many2many(related="template_id.stage_ids", string="Stages", force_save=True)
+    state_id = fields.Many2one('phase.stage', string='Stage', tracking=True,force_save=True,
+                    readonly=False, domain="[('id','in',stage_ids)]", default= 'set_stage_default', ondelete='restrict',)
+
+    def set_stage_default(self):
+        if self.stage_ids:
+            print("-=-=-=-",self.stage_ids)
+            return
+
+
 
     @api.depends('planned_material_cost','actual_material_cost')
     def set_utilization_cost(self):

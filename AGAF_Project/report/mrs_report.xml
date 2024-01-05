@@ -151,7 +151,12 @@
                                         <span t-esc="p_index+1"/>
                                     </td>
                                     <td>
-                                        <span t-esc="p.product_id.name"/>
+                                        <t t-if="p.product_id.default_code">
+                                            [<span t-esc="p.product_id.default_code"/>]<span t-esc="p.product_id.name"/>
+                                        </t>
+                                        <t t-else="">
+                                            <span t-esc="p.product_id.name"/>
+                                        </t>
                                     </td>
                                     <td>
                                         <span t-esc="p.uom_id.name"/>

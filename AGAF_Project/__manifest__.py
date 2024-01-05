@@ -27,6 +27,8 @@
         'views/consolidate.xml',
         'views/purchase_order.xml',
         'views/task.xml',
+        'views/phase_stage.xml',
+        'views/phase_template.xml',
     ],
  
     'installable': True,
