@@ -34,12 +34,7 @@ class project_phase_task(models.Model):
     template_id = fields.Many2one('phase.stage.template',string="Phase Template", required=1)
     stage_ids = fields.Many2many(related="template_id.stage_ids", string="Stages", force_save=True)
     state_id = fields.Many2one('phase.stage', string='Stage', tracking=True,force_save=True,
-                    readonly=False, domain="[('id','in',stage_ids)]", default= 'set_stage_default', ondelete='restrict',)
-
-    def set_stage_default(self):
-        if self.stage_ids:
-            print("-=-=-=-",self.stage_ids)
-            return
+                    readonly=False, domain="[('id','in',stage_ids)]", ondelete='restrict')
 
 
 
